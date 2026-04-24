@@ -341,6 +341,40 @@ EOF
 
 > **Note:** this requires the repo to be public (or GitHub Pro for private repos). `aboavent/payments-demo` is public — the command works as-is.
 
+### Step 6 — Show the results in GitHub
+
+Switch to the browser. Walk through three things:
+
+**1. The open PR**
+Go to `https://github.com/aboavent/payments-demo/pulls` → open PR #3.
+
+Point out:
+- The PR description is pre-populated with the security checklist from the template — every PR your 120 engineers open gets this automatically
+- The CI workflow is running (yellow dot next to the commit) — tests must pass before this can merge
+
+**Narration:**
+> "This PR can't merge until CI passes and a reviewer approves. That constraint didn't exist five minutes ago. And every future PR gets the same checklist by default — not because engineers remember to fill it in, but because the template enforces it."
+
+**2. The CI workflow running**
+Go to `https://github.com/aboavent/payments-demo/actions`.
+
+Point out:
+- The workflow triggered automatically on push — no one scheduled it
+- It's running pytest against the real codebase, not a mock
+
+**Narration:**
+> "Automated test gate, live. From now on a broken PR can't reach main — the pipeline catches it first."
+
+**3. Branch protection on main**
+Go to `https://github.com/aboavent/payments-demo/settings/branches`.
+
+Point out:
+- Main now shows a protection rule: requires CI status check + 1 reviewer
+- Even an admin can't bypass it (`enforce_admins: true`)
+
+**Narration:**
+> "Three enforced constraints — CI, reviewer, branch protection — applied in under five minutes with four commands. No GitHub UI clicking, no ticket to your platform team, no waiting. That's what programmable governance looks like."
+
 ---
 
 ## Act 5 — Refactoring (2 min) ✂️ cut if short on time
