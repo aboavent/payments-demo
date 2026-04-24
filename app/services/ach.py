@@ -27,10 +27,8 @@ def submit_transfer(
         transfer_id=transfer.id,
     )
 
-    # --- DEMO EXTENSION POINT ---
-    # Uncomment to enable suspicious transfer alerting:
-    # from app.services.alerts import check_suspicious_transfer
-    # check_suspicious_transfer(transfer)
+    from app.services.alerts import check_suspicious_transfer
+    check_suspicious_transfer(transfer)
 
     return transfer
 

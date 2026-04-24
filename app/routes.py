@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Request, Form
+import re
+
+from fastapi import APIRouter, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -26,6 +28,11 @@ async def submit_transfer(
     account_number: str = Form(...),
     memo: str = Form(""),
 ):
+    if not re.fullmatch(r"\d{9}", routing_number):
+        raise HTTPException(status_code=422, detail="Routing number must be exactly 9 digits.")
+    if not account_number.strip():
+        raise HTTPException(status_code=422, detail="Account number is required.")
+
     ach.submit_transfer(
         originator=originator,
         beneficiary=beneficiary,
