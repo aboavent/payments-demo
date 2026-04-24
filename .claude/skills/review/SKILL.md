@@ -11,6 +11,20 @@ Review the current change on five axes. Flag real issues directly — don't soft
 
 ---
 
+## Workflow gate — check before doing anything
+
+**Build completed?** Check for `docs/plans/build.done` on disk.
+- If the file does not exist → stop and respond:
+  ```
+  ⛔ No build marker found at docs/plans/build.done.
+  The 4-phase workflow requires a completed build before review.
+  Run /build first to implement the tasks from the plan.
+  ```
+
+Only proceed if the build marker is in place.
+
+---
+
 ## Review axes
 
 ### Correctness
@@ -58,3 +72,14 @@ Assumptions:     Note — assumed Z; should confirm with requester
 
 **Recommended next actions** — short list of concrete steps.  
 **Blocking issues** — anything that must be fixed before this is demo-ready (may be empty).
+
+---
+
+## After completing review
+
+If there are no blocking issues, write the review marker:
+```
+echo "review complete" > docs/plans/review.done
+```
+
+If there are blocking issues, do NOT write the marker — the issues must be fixed and `/review` re-run first.

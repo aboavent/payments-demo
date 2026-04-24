@@ -9,6 +9,20 @@ Confirm the change is demo-ready. For this repo "shipping" means: safe to demo l
 
 ---
 
+## Workflow gate — check before doing anything
+
+**Review completed?** Check for `docs/plans/review.done` on disk.
+- If the file does not exist → stop and respond:
+  ```
+  ⛔ No review marker found at docs/plans/review.done.
+  The 4-phase workflow requires a passing review before shipping.
+  Run /review first. If there are blocking issues, fix them before re-running /review.
+  ```
+
+Only proceed if the review marker is in place.
+
+---
+
 ## Pre-ship checklist
 
 ### Code quality
@@ -26,7 +40,7 @@ Confirm the change is demo-ready. For this repo "shipping" means: safe to demo l
 - [ ] Form inputs reach services as validated types
 
 ### Rollout
-For this repo: restart `uvicorn app.main:app --reload`.  
+For this repo: restart `uvicorn app.main:app`.  
 No migrations, no DB changes, no infrastructure.
 
 ### Rollback

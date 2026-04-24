@@ -61,6 +61,7 @@ After every file change, the project must build and existing tests must pass.
 1. Run `.venv/bin/pytest tests/ -q --tb=short`
 2. If tests fail, fix before moving on — don't accumulate broken state
 3. Report: what changed, which tests passed, what's next
+4. Write the build marker: `echo "build complete" > docs/plans/build.done`
 
 ## Scope creep check
 

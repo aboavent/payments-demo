@@ -115,6 +115,9 @@ rm -f docs/specs/suspicious-transfer-alerting.md
 echo "==> Removing plan file (Claude writes this live during /plan)..."
 rm -f docs/plans/plan.md
 
+echo "==> Removing workflow markers (build.done, review.done)..."
+rm -f docs/plans/build.done docs/plans/review.done
+
 echo "==> Removing .github/ (Act 4 DevSecOps demo — Claude creates this live)..."
 rm -rf .github/
 

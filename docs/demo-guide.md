@@ -33,17 +33,18 @@ Verify:
 
 Open **two terminal windows** before starting:
 - **Terminal 1** — runs `uvicorn app.main:app` (server, stays open the whole demo)
-- **Terminal 2** — free for git commands, resets, and watching the PostToolUse hook fire pytest
+- **Terminal 2** — free for git commands, resets, and manual pytest runs
 
 Arrange your screen in three columns:
 ```
 ┌─────────────────┬──────────────────────┬────────────────┐
 │  Claude Code    │  Terminal 1 (server) │    Browser     │
-│                 │  Terminal 2 (tests)  │  127.0.0.1:8000│
+│                 │  Terminal 2 (git/    │  127.0.0.1:8000│
+│                 │  manual pytest)      │                │
 └─────────────────┴──────────────────────┴────────────────┘
 ```
 
-This layout is critical for Act 3 — the audience watches Claude edit files on the left, pytest fire in Terminal 2 in the middle, and the live result in the browser on the right. Three things happening simultaneously without anyone orchestrating them.
+> **Note on pytest:** The PostToolUse hook fires pytest **inside the Claude Code terminal**, not in Terminal 2. You will see the test output scroll in the Claude Code pane after each file edit. Terminal 2 is for git commands (Act 4) and manual pytest runs — e.g. `.venv/bin/pytest tests/ -q` if you want to show the audience test output in a clean terminal.
 
 ### Reset between runs
 
@@ -177,7 +178,7 @@ Run /spec first.
 ```
 
 **Narration after both refusals:**
-> "Both refused — build can't run without a plan, and plan can't run without a spec. Not because I set rules in this session — because the workflow is encoded in the skills themselves. A junior engineer joining FinTechCo on day one runs into the same gates. The governance is structural, not voluntary. That's the difference between a policy document and an enforced process."
+> "Both refused — build can't run without a plan, and plan can't run without a spec. Not because I set rules in this session — because the workflow is encoded in the skills themselves. And this goes all the way through. `/review` is blocked until `/build` completes. `/ship` is blocked until `/review` passes with no blocking issues. The full chain — spec → plan → build → review → ship — is enforced at every step, on disk, not in memory. A junior engineer joining FinTechCo on day one runs into the same gates as a senior. The governance is structural, not voluntary. That's the difference between a policy document and an enforced process."
 
 ### Step 1 — Spec
 
@@ -203,24 +204,27 @@ Claude breaks the spec into atomic tasks with explicit acceptance criteria and v
 **Narration:**
 > "Each task is independently testable and leaves the system in a working state. A junior engineer following this plan produces the same outcome as a senior engineer. That's what governance at scale looks like."
 
-### Step 3 — Build (the two-terminal moment)
+### Step 3 — Build (the live test moment)
 
-Make sure both terminals are visible. Terminal 1 shows the running server. Terminal 2 will show pytest firing.
+Make sure Terminal 1 (server) and the browser are visible alongside Claude Code.
 
 ```
 /build   task 1
+/build   task 2
 ```
 
-Claude modifies `alerts.py` then `ach.py`. After each file save, **Terminal 2 fires pytest automatically** via the PostToolUse hook — without anyone asking.
+Run both tasks back-to-back. Task 1 wires up `alerts.py` (the detection logic). Task 2 wires up `ach.py` (the call site). **Both tasks are required before the feature is visible in the browser** — `alerts.py` alone does nothing until `ach.py` calls it.
 
-Point to Terminal 2 as it runs:
+After each file save, **pytest fires automatically inside the Claude Code terminal** via the PostToolUse hook — without anyone asking.
+
+Point to the Claude Code pane as tests run:
 
 **Narration:**
-> "Three things just happened simultaneously: Claude edited the file on the left, tests ran automatically in the middle terminal, and the server on the right is already serving the updated code. Nobody orchestrated that. The hook in `.claude/settings.json` enforces it permanently — it's not possible to ship broken code silently in this repo."
+> "Notice what just happened in this terminal — Claude edited the file, and tests ran automatically without anyone asking. That's the PostToolUse hook in `.claude/settings.json`. It's a permanent constraint on this repo: every file change in `app/` triggers the test suite instantly. It's not possible to silently ship broken code here."
 
 ### Step 4 — Demo the feature in the browser
 
-Submit a transfer in the browser (right side of screen):
+Once both `/build task 1` and `/build task 2` are complete, submit a transfer in the browser (right side of screen):
 - Amount: `15000`, Originator: `Acme Corp`, Beneficiary: `Jane Doe`
 
 The **Alerts panel** populates immediately:
@@ -237,14 +241,20 @@ Submit a transfer below threshold (`2500`). No alert.
 /review
 ```
 
-Claude checks correctness, security (are account/routing numbers in logs?), maintainability, operational risk.
+Claude checks correctness, security (are account/routing numbers in logs?), maintainability, operational risk. If review passes with no blocking issues, it writes `docs/plans/review.done` — the gate that unlocks `/ship`.
 
 ```
 /ship
 ```
 
+If you try `/ship` before `/review`, it refuses:
+```
+⛔ No review marker found at docs/plans/review.done.
+Run /review first.
+```
+
 **Narration:**
-> "The /ship checklist is the answer to the question every CTO asks before a release: what changed, is it tested, what's the rollback path? It's explicit. Never assumed. And it's here because CLAUDE.md defines what 'done' means for this project."
+> "Notice the sequence — `/ship` refused until `/review` completed cleanly. Not because I told it to wait, but because the chain is enforced on disk. Spec, plan, build, review, ship — every gate verified, every step traceable. The `/ship` checklist is the answer to the question every CTO asks before a release: what changed, is it tested, what's the rollback path? Explicit. Never assumed. Enforced by the process, not by convention."
 
 ---
 
@@ -324,23 +334,38 @@ Claude creates `.github/pull_request_template.md` — includes test checklist, s
 Claude stops after creating the files — it does not commit. You run these commands in Terminal 2:
 
 ```bash
-git checkout -b devsecops-hardening                              # create a feature branch — changes never go straight to main
-git add .github/ .gitignore requirements.txt                     # stage only the files Claude created — nothing else
-git commit -m "add CI pipeline, PR template, and security hardening"  # one commit, one reviewable diff
-git push -u origin devsecops-hardening                           # push the branch — git prints the PR URL
+git checkout -b devsecops-hardening
+git add .github/ .gitignore requirements.txt
+git commit -m "add CI pipeline, PR template, and security hardening"
+git push -u origin devsecops-hardening
+gh pr create \
+  --title "Add CI pipeline, PR template, and security hardening" \
+  --body "$(cat <<'EOF'
+## Summary
+Add CI pipeline, PR template, Dependabot, and secrets hardening.
+
+## Test plan
+- [x] Tests pass locally: `pytest tests/ -q`
+- [x] New behavior tested manually in the UI
+- [x] No account numbers or routing numbers in logs
+
+## Security checklist
+- [x] No sensitive fields exposed in error messages or logs
+- [x] Input validation at the route boundary (not deep in services)
+- [x] No new dependencies added without review
+
+## Rollback
+Revert .github/ and requirements.txt. Server restart not required.
+EOF
+)"
 ```
 
-After `git push`, the terminal prints a URL like:
-```
-https://github.com/aboavent/payments-demo/pull/new/devsecops-hardening
-```
-
-**Open that URL in the browser** — do NOT run `gh pr create --fill`. Opening in the browser triggers the PR template, so the security checklist is pre-populated automatically. Fill in a one-line summary and submit.
+`gh pr create` prints the PR URL — open it in the browser for Step 6.
 
 > **If `git checkout -b devsecops-hardening` fails** with "branch already exists", the reset script did not run cleanly. Run `bash scripts/demo-reset.sh` to clean up, then retry.
 
 **Narration:**
-> "The pipeline is live. The PR template is enforced — notice the security checklist is already there, every field pre-populated. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
+> "The pipeline is live. The PR template is enforced — notice the security checklist is already there, pre-populated. And this is the PR that *introduced* the template. Every PR your 120 engineers open from now on gets this automatically. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
 
 ### Step 5 — Fix: Branch protection
 
@@ -450,6 +475,8 @@ Point to the terminal showing tests passing.
 > "The PostToolUse hook means Claude physically cannot edit a file in `app/` without tests running. That's not a convention — it's an enforced constraint in `.claude/settings.json`."
 
 > "Claude changed exactly two files to add this feature. Small, reviewable diff. That's what surgical changes look like at 120 engineers."
+
+> "The full delivery chain — spec → plan → build → review → ship — is enforced at every step by on-disk markers, not session memory. There is no way to skip review and ship. There is no way to build without a spec. A junior engineer on day one is bound by the same gates as a senior. That's governance that scales."
 
 ### For the Head of Digital Transformation (velocity, adoption)
 
