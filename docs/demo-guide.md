@@ -303,9 +303,10 @@ Claude creates `.github/pull_request_template.md` — includes test checklist, s
 ### Step 4 — Commit and open a PR
 
 ```bash
+git checkout -b devsecops-hardening
 git add .github/
 git commit -m "add CI pipeline and PR template"
-git push
+git push -u origin devsecops-hardening
 gh pr create --fill
 ```
 
