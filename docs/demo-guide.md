@@ -51,6 +51,27 @@ bash scripts/demo-reset.sh
 uvicorn app.main:app
 ```
 
+**What the reset script does — and why you don't need to delete the GitHub repo:**
+
+After a full demo (Acts 1–4), the remote repo is in a "used" state:
+- A `devsecops-hardening` branch exists on GitHub with CI, PR template, and validation code
+- An open PR was created from that branch
+
+If you try to run Act 4 again without resetting, `git push origin devsecops-hardening` and `gh pr create` will both fail because they already exist. The reset script handles this automatically:
+
+| Step | What it resets |
+|---|---|
+| Stops uvicorn | Clears port 8000 |
+| `git checkout -f main` | Discards all uncommitted changes, returns to baseline |
+| Restores `ach.py` + `alerts.py` | Extension point stubs back to commented-out state |
+| Removes `tests/test_alerts.py` | Test file belongs to the feature, not the baseline |
+| Removes `.github/` | Must not exist at demo start — Claude creates it live in Act 4 |
+| Closes open PR on GitHub | So `gh pr create` works cleanly on the next run |
+| Deletes `devsecops-hardening` branch (remote + local) | So `git push origin devsecops-hardening` works cleanly |
+| Runs pytest | Confirms 10 tests pass before you present |
+
+**`origin/main` is never touched.** It is always the stable baseline. The reset script only cleans up the feature branch and its PR.
+
 ---
 
 ## Act 1 — Codebase exploration (2 min)
