@@ -366,14 +366,18 @@ Point out:
 > "Automated test gate, live. From now on a broken PR can't reach main — the pipeline catches it first."
 
 **3. Branch protection on main**
-Go to `https://github.com/aboavent/payments-demo/settings/branches`.
+Go to `https://github.com/aboavent/payments-demo/settings/branches` → click the edit (pencil) icon next to the `main` rule.
 
-Point out:
-- Main now shows a protection rule: requires CI status check + 1 reviewer
-- Even an admin can't bypass it (`enforce_admins: true`)
+Point out (no changes needed — everything is already set by the `gh api` command):
+- Branch name pattern: `main` — applies to exactly 1 branch
+- Require a pull request before merging ✓
+- Require approvals: 1 ✓
+- Require status checks to pass ✓ — `test` (the CI job) is already listed under "Status checks that are required"
+- Require branches to be up to date ✓
+- Enforce admins ✓ — not visible in the UI but set via the API; even the repo owner can't bypass
 
 **Narration:**
-> "Three enforced constraints — CI, reviewer, branch protection — applied in under five minutes with four commands. No GitHub UI clicking, no ticket to your platform team, no waiting. That's what programmable governance looks like."
+> "Pull request required. One reviewer. CI must pass — and you can see the specific check: `test`, the exact job name from the workflow we just created. Branches must be up to date. Admins included. Every one of these was set by a single `gh api` command 60 seconds ago — no UI clicking, no ticket to your platform team. That's the difference between a policy someone might follow and a constraint the platform enforces."
 
 ---
 
