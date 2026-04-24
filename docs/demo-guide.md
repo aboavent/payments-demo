@@ -305,11 +305,11 @@ Claude creates `.github/pull_request_template.md` — includes test checklist, s
 Claude stops after creating the files — it does not commit. You run these commands in Terminal 2:
 
 ```bash
-git checkout -b devsecops-hardening
-git add .github/ .gitignore requirements.txt
-git commit -m "add CI pipeline, PR template, and security hardening"
-git push -u origin devsecops-hardening
-gh pr create --fill
+git checkout -b devsecops-hardening                              # create a feature branch — changes never go straight to main
+git add .github/ .gitignore requirements.txt                     # stage only the files Claude created — nothing else
+git commit -m "add CI pipeline, PR template, and security hardening"  # one commit, one reviewable diff
+git push -u origin devsecops-hardening                           # push the branch to GitHub and track it
+gh pr create --fill                                              # open a PR — title and body auto-filled from the commit
 ```
 
 The PR opens in GitHub. Show the browser — the CI workflow is running, the PR template is pre-populated with the security checklist.
@@ -324,14 +324,14 @@ The PR opens in GitHub. Show the browser — the CI workflow is running, the PR 
 Run this in Terminal 2:
 
 ```bash
-gh api repos/aboavent/payments-demo/branches/main/protection \
-  --method PUT \
-  --input - <<'EOF'
+gh api repos/aboavent/payments-demo/branches/main/protection \  # call the GitHub branch protection API for main
+  --method PUT \                                                  # PUT replaces the entire rule set
+  --input - <<'EOF'                                              # read the rule payload from stdin (heredoc)
 {
-  "required_status_checks": {"strict": true, "checks": [{"context": "test"}]},
-  "enforce_admins": true,
-  "required_pull_request_reviews": {"required_approving_review_count": 1},
-  "restrictions": null
+  "required_status_checks": {"strict": true, "checks": [{"context": "test"}]},  # CI must pass before merge
+  "enforce_admins": true,                                        # rule applies to repo admins too — no bypass
+  "required_pull_request_reviews": {"required_approving_review_count": 1},  # at least 1 reviewer must approve
+  "restrictions": null                                           # no restriction on who can push (open to all collaborators)
 }
 EOF
 ```
