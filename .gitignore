@@ -10,3 +10,10 @@ dist/
 .DS_Store
 .claude/settings.local.json
 pdf/
+.env
+.env.*
+*.key
+*.pem
+*.p12
+credentials*
+secrets*
