@@ -89,6 +89,9 @@ EOF
 echo "==> Removing test_alerts.py (belongs to the feature, not the baseline)..."
 rm -f tests/test_alerts.py
 
+echo "==> Switching to main branch (force, discards any uncommitted changes)..."
+git checkout -f main
+
 echo "==> Removing .github/ (Act 4 DevSecOps demo — Claude creates this live)..."
 rm -rf .github/
 
