@@ -12,6 +12,7 @@
 
 ```bash
 cd payments-demo
+source .venv/bin/activate            # activate the virtual environment
 bash scripts/demo-reset.sh          # restores baseline, confirms 10 tests pass
 uvicorn app.main:app                 # NO --reload (see note below)
 ```
@@ -47,6 +48,7 @@ This layout is critical for Act 3 — the audience watches Claude edit files on 
 ### Reset between runs
 
 ```bash
+source .venv/bin/activate
 bash scripts/demo-reset.sh
 uvicorn app.main:app
 ```
