@@ -308,30 +308,34 @@ Claude stops after creating the files — it does not commit. You run these comm
 git checkout -b devsecops-hardening                              # create a feature branch — changes never go straight to main
 git add .github/ .gitignore requirements.txt                     # stage only the files Claude created — nothing else
 git commit -m "add CI pipeline, PR template, and security hardening"  # one commit, one reviewable diff
-git push -u origin devsecops-hardening                           # push the branch to GitHub and track it
-gh pr create --fill                                              # open a PR — title and body auto-filled from the commit
+git push -u origin devsecops-hardening                           # push the branch — git prints the PR URL
 ```
 
-The PR opens in GitHub. Show the browser — the CI workflow is running, the PR template is pre-populated with the security checklist.
+After `git push`, the terminal prints a URL like:
+```
+https://github.com/aboavent/payments-demo/pull/new/devsecops-hardening
+```
+
+**Open that URL in the browser** — do NOT run `gh pr create --fill`. Opening in the browser triggers the PR template, so the security checklist is pre-populated automatically. Fill in a one-line summary and submit.
 
 > **If `git checkout -b devsecops-hardening` fails** with "branch already exists", the reset script did not run cleanly. Run `bash scripts/demo-reset.sh` to clean up, then retry.
 
 **Narration:**
-> "The pipeline is live. The PR template is enforced. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
+> "The pipeline is live. The PR template is enforced — notice the security checklist is already there, every field pre-populated. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
 
 ### Step 5 — Fix: Branch protection
 
 Run this in Terminal 2:
 
 ```bash
-gh api repos/aboavent/payments-demo/branches/main/protection \  # call the GitHub branch protection API for main
-  --method PUT \                                                  # PUT replaces the entire rule set
-  --input - <<'EOF'                                              # read the rule payload from stdin (heredoc)
+gh api repos/aboavent/payments-demo/branches/main/protection \
+  --method PUT \
+  --input - <<'EOF'
 {
-  "required_status_checks": {"strict": true, "checks": [{"context": "test"}]},  # CI must pass before merge
-  "enforce_admins": true,                                        # rule applies to repo admins too — no bypass
-  "required_pull_request_reviews": {"required_approving_review_count": 1},  # at least 1 reviewer must approve
-  "restrictions": null                                           # no restriction on who can push (open to all collaborators)
+  "required_status_checks": {"strict": true, "checks": [{"context": "test"}]},
+  "enforce_admins": true,
+  "required_pull_request_reviews": {"required_approving_review_count": 1},
+  "restrictions": null
 }
 EOF
 ```
@@ -346,14 +350,17 @@ EOF
 Switch to the browser. Walk through three things:
 
 **1. The open PR**
-Go to `https://github.com/aboavent/payments-demo/pulls` → open PR #3.
+Go to `https://github.com/aboavent/payments-demo/pulls` → open the PR.
 
 Point out:
-- The PR description is pre-populated with the security checklist from the template — every PR your 120 engineers open gets this automatically
-- The CI workflow is running (yellow dot next to the commit) — tests must pass before this can merge
+- The PR description has the security checklist pre-populated from the template — every PR your 120 engineers open gets this automatically
+- CI passed (green check) — tests ran automatically on push
+- "Review required" badge is red and merging is blocked — point to this directly
 
 **Narration:**
-> "This PR can't merge until CI passes and a reviewer approves. That constraint didn't exist five minutes ago. And every future PR gets the same checklist by default — not because engineers remember to fill it in, but because the template enforces it."
+> "Notice merging is blocked — CI passed but there's no reviewer yet. That's the rule working exactly as intended. In a 120-engineer org, a second set of eyes is required before anything touches main. Not optional, not a convention — enforced by the platform. The security checklist in the description? Pre-populated automatically from the template we created five minutes ago."
+
+> **Presenter note:** You're the sole collaborator so you can't approve your own PR — that's by design in GitHub. Don't try to work around it. The blocked state is the demo payoff, not a problem. Leave the PR open and move on.
 
 **2. The CI workflow running**
 Go to `https://github.com/aboavent/payments-demo/actions`.
@@ -366,14 +373,18 @@ Point out:
 > "Automated test gate, live. From now on a broken PR can't reach main — the pipeline catches it first."
 
 **3. Branch protection on main**
-Go to `https://github.com/aboavent/payments-demo/settings/branches`.
+Go to `https://github.com/aboavent/payments-demo/settings/branches` → click the edit (pencil) icon next to the `main` rule.
 
-Point out:
-- Main now shows a protection rule: requires CI status check + 1 reviewer
-- Even an admin can't bypass it (`enforce_admins: true`)
+Point out (no changes needed — everything is already set by the `gh api` command):
+- Branch name pattern: `main` — applies to exactly 1 branch
+- Require a pull request before merging ✓
+- Require approvals: 1 ✓
+- Require status checks to pass ✓ — `test` (the CI job) is already listed under "Status checks that are required"
+- Require branches to be up to date ✓
+- Enforce admins ✓ — not visible in the UI but set via the API; even the repo owner can't bypass
 
 **Narration:**
-> "Three enforced constraints — CI, reviewer, branch protection — applied in under five minutes with four commands. No GitHub UI clicking, no ticket to your platform team, no waiting. That's what programmable governance looks like."
+> "Pull request required. One reviewer. CI must pass — and you can see the specific check: `test`, the exact job name from the workflow we just created. Branches must be up to date. Admins included. Every one of these was set by a single `gh api` command 60 seconds ago — no UI clicking, no ticket to your platform team. That's the difference between a policy someone might follow and a constraint the platform enforces."
 
 ---
 
