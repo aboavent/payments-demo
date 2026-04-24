@@ -1,0 +1,29 @@
+{
+  "defaultMode": "acceptEdits",
+  "permissions": {
+    "allow": [
+      "Bash(python3*)",
+      "Bash(pip*)",
+      "Bash(.venv/bin/pip*)",
+      "Bash(pytest*)",
+      "Bash(uvicorn*)",
+      "Bash(ls*)",
+      "Bash(find*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '^(app|tests)/' && .venv/bin/pytest tests/ -q --tb=short 2>&1 || true",
+            "timeout": 30,
+            "statusMessage": "Running tests..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="grid">
+
+  <!-- Left column: form + alerts -->
+  <div class="col-left">
+
+    <!-- Transfer submission form -->
+    <section class="card">
+      <h2>Submit ACH Transfer</h2>
+      <form method="post" action="/transfers" class="transfer-form">
+
+        <div class="form-row">
+          <label for="originator">Originator</label>
+          <input id="originator" name="originator" type="text"
+                 placeholder="Acme Corp" required />
+        </div>
+
+        <div class="form-row">
+          <label for="beneficiary">Beneficiary</label>
+          <input id="beneficiary" name="beneficiary" type="text"
+                 placeholder="Jane Doe" required />
+        </div>
+
+        <div class="form-row">
+          <label for="amount">Amount (USD)</label>
+          <input id="amount" name="amount" type="number"
+                 step="0.01" min="0.01" placeholder="1000.00" required />
+        </div>
+
+        <div class="form-row">
+          <label for="routing_number">Routing Number</label>
+          <input id="routing_number" name="routing_number" type="text"
+                 placeholder="021000021" pattern="\d{9}" maxlength="9" required />
+        </div>
+
+        <div class="form-row">
+          <label for="account_number">Account Number</label>
+          <input id="account_number" name="account_number" type="text"
+                 placeholder="123456789" required />
+        </div>
+
+        <div class="form-row">
+          <label for="memo">Memo</label>
+          <input id="memo" name="memo" type="text"
+                 placeholder="Invoice #1042" />
+        </div>
+
+        <button type="submit" class="btn-primary">Submit Transfer</button>
+      </form>
+    </section>
+
+    <!-- Alerts panel -->
+    <section class="card">
+      <h2>Alerts
+        {% if alerts %}
+          <span class="badge badge-warn">{{ alerts | length }}</span>
+        {% endif %}
+      </h2>
+
+      {% if alerts %}
+        <ul class="alert-list">
+          {% for alert in alerts %}
+            <li class="alert-item alert-{{ alert.severity.value }}">
+              <strong>{{ alert.title }}</strong>
+              <span class="alert-time">{{ alert.created_at.strftime('%H:%M:%S') }}</span>
+              <p>{{ alert.message }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty-state">No active alerts.</p>
+      {% endif %}
+    </section>
+
+  </div><!-- /col-left -->
+
+  <!-- Right column: transfers + audit -->
+  <div class="col-right">
+
+    <!-- Recent transfers -->
+    <section class="card">
+      <h2>Recent Transfers</h2>
+      {% if transfers %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Originator</th>
+                <th>Beneficiary</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in transfers %}
+                <tr>
+                  <td class="mono">{{ t.id[:8] }}&hellip;</td>
+                  <td>{{ t.originator }}</td>
+                  <td>{{ t.beneficiary }}</td>
+                  <td class="amount">${{ "%.2f" | format(t.amount) }}</td>
+                  <td><span class="status status-{{ t.status.value }}">{{ t.status.value }}</span></td>
+                  <td class="mono">{{ t.created_at.strftime('%H:%M:%S') }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="empty-state">No transfers yet.</p>
+      {% endif %}
+    </section>
+
+    <!-- Audit events -->
+    <section class="card">
+      <h2>Audit Log</h2>
+      {% if audit_events %}
+        <ul class="audit-list">
+          {% for ev in audit_events %}
+            <li class="audit-item">
+              <span class="audit-action">{{ ev.action }}</span>
+              <span class="audit-time mono">{{ ev.created_at.strftime('%H:%M:%S') }}</span>
+              <span class="audit-detail">{{ ev.detail }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty-state">No audit events yet.</p>
+      {% endif %}
+    </section>
+
+  </div><!-- /col-right -->
+
+</div><!-- /grid -->
+
+{% endblock %}
