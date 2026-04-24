@@ -314,9 +314,27 @@ The PR opens in GitHub. Show the browser — the CI workflow is running, the PR 
 **Narration:**
 > "The pipeline is live. The PR template is enforced. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
 
-### Branch protection — verbal only
+### Step 5 — Fix: Branch protection
 
-> "The last step is branch protection — requiring CI to pass and one reviewer before any PR merges to main. That's a two-minute change in GitHub Settings. Claude Code can give you the exact steps or run the `gh api` command. We'll skip the live click for time, but it's one command."
+Run this in Terminal 2:
+
+```bash
+gh api repos/aboavent/payments-demo/branches/main/protection \
+  --method PUT \
+  --input - <<'EOF'
+{
+  "required_status_checks": {"strict": true, "checks": [{"context": "test"}]},
+  "enforce_admins": true,
+  "required_pull_request_reviews": {"required_approving_review_count": 1},
+  "restrictions": null
+}
+EOF
+```
+
+**Narration:**
+> "One command. Main is now locked — no PR merges without CI passing and one reviewer approving. Not a policy document, not a two-minute click in Settings — an enforced constraint applied programmatically. That's the difference between a rule someone might follow and a rule the platform enforces."
+
+> **Note:** this requires the repo to be public (or GitHub Pro for private repos). `aboavent/payments-demo` is public — the command works as-is.
 
 ---
 

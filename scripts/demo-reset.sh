@@ -112,6 +112,9 @@ git checkout -f main
 echo "==> Removing .github/ (Act 4 DevSecOps demo — Claude creates this live)..."
 rm -rf .github/
 
+echo "==> Removing branch protection on main (so it can be applied live in Act 4)..."
+gh api repos/aboavent/payments-demo/branches/main/protection --method DELETE 2>/dev/null && echo "    removed" || echo "    not set (ok)"
+
 echo "==> Closing any open PR for devsecops-hardening on GitHub..."
 set +e   # gh/git failures here are expected when branch/PR don't exist yet
 PR_NUMBER=$(gh pr list --head devsecops-hardening --state open --json number --jq '.[].number' 2>/dev/null)
