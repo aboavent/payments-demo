@@ -50,3 +50,11 @@ Add a checkpoint after every 2–3 tasks:
 ## Risks and open questions
 
 List any risks identified during task breakdown, or questions that came up while decomposing the work.
+
+---
+
+## Save the plan
+
+After producing the plan, save it to `docs/plans/plan.md`. Create the `docs/plans/` directory if it does not exist. Confirm the saved path to the user.
+
+This file is the on-disk signal that `/build` checks to verify the workflow was followed. Without it, `/build` will refuse to proceed.

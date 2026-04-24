@@ -112,6 +112,9 @@ git checkout -f main
 echo "==> Removing spec file (Claude writes this live during /spec)..."
 rm -f docs/specs/suspicious-transfer-alerting.md
 
+echo "==> Removing plan file (Claude writes this live during /plan)..."
+rm -f docs/plans/plan.md
+
 echo "==> Removing .github/ (Act 4 DevSecOps demo — Claude creates this live)..."
 rm -rf .github/
 

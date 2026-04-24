@@ -21,10 +21,11 @@ Before implementing, verify the workflow was followed:
      Run /spec first to define the scope and acceptance criteria.
      ```
 
-2. **Plan exists?** Check whether a plan has been produced for this spec (ask: "was /plan run after the spec was approved?").
-   - If no plan → stop and respond:
+2. **Plan exists?** Check for `docs/plans/plan.md` on disk.
+   - If the file does not exist → stop and respond:
      ```
-     ⛔ No plan found.
+     ⛔ No plan found in docs/plans/plan.md.
+     The 4-phase workflow requires a plan before implementation.
      Run /plan to break the spec into verifiable tasks before building.
      ```
 
