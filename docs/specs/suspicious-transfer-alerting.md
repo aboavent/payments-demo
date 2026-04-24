@@ -29,8 +29,8 @@ Activate the two existing stubs: `check_suspicious_transfer()` in `alerts.py` an
 
 | File | Change type | Why |
 |---|---|---|
-| `app/services/alerts.py` | modify | Uncomment `check_suspicious_transfer()` body (lines 23–32) |
-| `app/services/ach.py` | modify | Uncomment the import and call at lines 32–33 |
+| `app/services/alerts.py` | modify | Uncomment `check_suspicious_transfer()` body |
+| `app/services/ach.py` | modify | Uncomment the import and call site |
 
 ## Acceptance criteria
 
@@ -49,13 +49,13 @@ New file `tests/test_alerts.py`:
 
 ## Rollout / rollback
 
-**Rollout:** restart `uvicorn app.main:app --reload`. No migrations, no state changes.
+**Rollout:** restart `uvicorn app.main:app`. No migrations, no state changes.
 **Rollback:** re-comment the two lines in `ach.py` and the function body in `alerts.py`. Server restart resets in-memory state.
 
 ## Risks and assumptions
 
 - `float` comparison (`amount >= threshold`) is sufficient for a demo; a production system would use `Decimal`
-- Alert message includes the full UUID transfer id — acceptable for demo purposes
+- Alert message includes originator name and full amount — consistent with existing audit log pattern
 
 ## Open questions
 

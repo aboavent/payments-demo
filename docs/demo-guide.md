@@ -75,6 +75,13 @@ Claude describes the layered architecture (routes → services → repository), 
 **Narration:**
 > "New engineer joins FinTechCo on Monday. Instead of a 2-hour walkthrough, they ask Claude Code. In 30 seconds they understand the data flow, the extension points, and what's safe to change. For a 120-person engineering organization, that onboarding acceleration compounds with every hire."
 
+### Open CLAUDE.md — address the "before" state
+
+After the architecture overview, briefly open `CLAUDE.md` and point to it.
+
+**Narration:**
+> "The first thing your team does when adopting Claude Code is write this file — your project constitution. It takes about an hour. Everything else follows from it. Before this file existed, Claude was a capable assistant. After it, Claude is a governed team member that knows your rules, your sensitive fields, and your definition of done."
+
 ---
 
 ## Act 2 — Security review and bug fix (4 min)
