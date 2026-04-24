@@ -305,19 +305,23 @@ Claude creates `.github/pull_request_template.md` — includes test checklist, s
 Claude stops after creating the files — it does not commit. You run these commands in Terminal 2:
 
 ```bash
-git checkout -b devsecops-hardening
-git add .github/
-git commit -m "add CI pipeline and PR template"
-git push -u origin devsecops-hardening
-gh pr create --fill
+git checkout -b devsecops-hardening                              # create a feature branch — changes never go straight to main
+git add .github/ .gitignore requirements.txt                     # stage only the files Claude created — nothing else
+git commit -m "add CI pipeline, PR template, and security hardening"  # one commit, one reviewable diff
+git push -u origin devsecops-hardening                           # push the branch — git prints the PR URL
 ```
 
-The PR opens in GitHub. Show the browser — the CI workflow is running, the PR template is pre-populated with the security checklist.
+After `git push`, the terminal prints a URL like:
+```
+https://github.com/aboavent/payments-demo/pull/new/devsecops-hardening
+```
+
+**Open that URL in the browser** — do NOT run `gh pr create --fill`. Opening in the browser triggers the PR template, so the security checklist is pre-populated automatically. Fill in a one-line summary and submit.
 
 > **If `git checkout -b devsecops-hardening` fails** with "branch already exists", the reset script did not run cleanly. Run `bash scripts/demo-reset.sh` to clean up, then retry.
 
 **Narration:**
-> "The pipeline is live. The PR template is enforced. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
+> "The pipeline is live. The PR template is enforced — notice the security checklist is already there, every field pre-populated. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
 
 ### Step 5 — Fix: Branch protection
 
@@ -346,14 +350,15 @@ EOF
 Switch to the browser. Walk through three things:
 
 **1. The open PR**
-Go to `https://github.com/aboavent/payments-demo/pulls` → open PR #3.
+Go to `https://github.com/aboavent/payments-demo/pulls` → open the PR.
 
 Point out:
-- The PR description is pre-populated with the security checklist from the template — every PR your 120 engineers open gets this automatically
-- The CI workflow is running (yellow dot next to the commit) — tests must pass before this can merge
+- The PR description has the security checklist pre-populated from the template — every PR your 120 engineers open gets this automatically
+- CI passed (green check) — tests ran automatically on push
+- "Review required" badge is red and merging is blocked — point to this directly
 
 **Narration:**
-> "This PR can't merge until CI passes and a reviewer approves. That constraint didn't exist five minutes ago. And every future PR gets the same checklist by default — not because engineers remember to fill it in, but because the template enforces it."
+> "Notice merging is blocked — CI passed but there's no reviewer yet. That's the rule working exactly as intended. In a 120-engineer org, a second set of eyes is required before anything touches main. Not optional, not a convention — enforced by the platform. The security checklist in the description? Pre-populated automatically from the template we created five minutes ago."
 
 **2. The CI workflow running**
 Go to `https://github.com/aboavent/payments-demo/actions`.
