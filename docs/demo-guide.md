@@ -432,40 +432,76 @@ Point out (no changes needed — everything is already set by the `gh api` comma
 **Narration:**
 > "Pull request required. One reviewer. CI must pass — and you can see the specific check: `test`, the exact job name from the workflow we just created. Branches must be up to date. Admins included. Every one of these was set by a single `gh api` command 60 seconds ago — no UI clicking, no ticket to your platform team. That's the difference between a policy someone might follow and a constraint the platform enforces."
 
-**Closing narration — connect back to Act 3:**
-> "Think back to the suspicious transfer feature we built in Act 3. It's tested, reviewed, and ready. When it ships, it goes through this pipeline — CI runs, a reviewer approves, the security checklist is filled in. The feature built in Act 3 now has a safe path to production. That's the full picture: Claude Code helps you build the right thing *and* ensures it ships the right way."
+**Closing narration — merge the PR and bridge to Act 5:**
+> "The pipeline is in place. Now merge this PR — once it lands on main, every future PR gets CI, the security checklist, and branch protection automatically. The feature we built in Act 3 is waiting. Let's ship it the right way."
+
+In the browser, merge the `devsecops-hardening` PR using **Merge as admin** (the override button at the bottom of the PR).
+
+> **Presenter note:** Using admin override here is intentional and worth narrating: "I'm merging as admin because I'm the only collaborator — in a real org, a teammate would approve it. The rule is enforced; I'm just the exception the platform allows."
 
 ---
 
-## Act 5 — Refactoring (2 min) ✂️ cut if short on time
+## Act 5 — Refactoring + shipping through the pipeline (2 min) ✂️ cut if short on time
 
-**What this shows:** Claude Code improves code quality, not just adds features. Closes the full software lifecycle: understand → secure → build → ship → improve.
+**What this shows:** Claude Code cleans up code after a feature ships, then commits the full feature work through the pipeline Act 4 just established. Closes the full software lifecycle: understand → secure → build → ship → improve → merge.
 
-**When to run:** only if you have 2+ minutes after Act 4. Can also replace Act 4 if you want something more visual than git commands.
+**When to run:** only if you have 2+ minutes after Act 4. Requires the `devsecops-hardening` PR to be merged first (done at the end of Act 4 above).
 
-### Setup
+### Step 1 — Refactor with `/simplify`
 
-After `/build` in Act 3, `ach.py` still has the `# --- DEMO EXTENSION POINT ---` comment block. The feature is live — the comment is now dead code. This is the refactor target. Nothing needs to be staged.
+After Act 3, `ach.py` has a local import inside the function body (`from app.services.alerts import check_suspicious_transfer`). It was written that way intentionally — keeping each build task isolated. Now that the feature is complete, Claude can propose moving it to the standard top-level location.
 
-### In Claude Code, type:
+In Claude Code, type:
 
 ```
 /simplify
 ```
 
-Claude will apply Chesterton's Fence — it reads `ach.py`, understands what the comment was for, confirms the feature is now active, and flags it as removable dead code.
+Claude reads `ach.py`, identifies the unconventional local import, explains why it was written that way during the build phase, and proposes moving it to the top of the file alongside the other imports.
 
 **Narration:**
-> "The feature is shipped. But Claude noticed something — the extension point comment that guided the implementation is now dead code. It's not needed anymore and it's adding noise. Before touching anything, Claude explains *why* the code was written that way and confirms it's safe to remove. That's Chesterton's Fence: understand before you change."
+> "The feature works. But Claude noticed something worth cleaning up — the import is inside the function body rather than at the top of the file. It was written that way during build to keep each task self-contained. Now that it's complete, Claude proposes the standard pattern. Before touching anything, it explains *why* the code was written that way and confirms the move is safe. That's the discipline that keeps a 120-engineer codebase clean: understand before you change."
 
-Claude removes the comment block. The PostToolUse hook fires pytest — 10 tests pass.
+Claude moves the import. The PostToolUse hook fires pytest — 13 tests pass.
 
 **Narration:**
-> "One file. Tests still pass. Behavior unchanged. Claude doesn't just add things — it actively removes what's no longer needed. In a large codebase with 120 engineers, that discipline compounds. Technical debt doesn't accumulate silently."
+> "One file, one line moved. Tests still pass. Behavior unchanged. Claude doesn't just add things — it actively improves what's already there. Technical debt doesn't accumulate silently."
 
-Point to the terminal showing tests passing.
+### Step 2 — Commit the feature through the pipeline
 
-> "It couldn't introduce a regression here even if it tried — the hook would catch it immediately."
+Now ship everything from Act 3 through the process Act 4 just established. Run in Terminal 2:
+
+```bash
+git checkout -b feature/suspicious-transfer-alerting
+git add app/services/ach.py app/services/alerts.py app/routes.py tests/test_alerts.py
+git commit -m "implement suspicious transfer alerting and route validation"
+git push -u origin feature/suspicious-transfer-alerting
+gh pr create \
+  --title "Implement suspicious transfer alerting and route validation" \
+  --body "$(cat <<'EOF'
+## Summary
+Implement threshold-based suspicious transfer alerting and server-side input validation.
+
+## Test plan
+- [x] Tests pass locally: `pytest tests/ -q`
+- [x] Alerts panel shows WARNING for transfers >= $10,000
+- [x] No account numbers or routing numbers in logs
+
+## Security checklist
+- [x] No sensitive fields exposed in error messages or logs
+- [x] Input validation at the route boundary (not deep in services)
+- [x] No new dependencies added without review
+
+## Rollback
+Revert app/services/ach.py, app/services/alerts.py, app/routes.py. Server restart resets in-memory store.
+EOF
+)"
+```
+
+Open the PR URL in the browser. CI runs automatically. Merging is blocked until a reviewer approves.
+
+**Narration:**
+> "The feature built in Act 3 is now going through the pipeline we set up in Act 4. CI is running, the security checklist is pre-populated, merging is blocked until a reviewer approves. That's the full picture: Claude Code helped us build the right thing, reviewed and tested it, hardened the delivery pipeline, and now the feature ships through that pipeline. Every step governed. Nothing assumed."
 
 ---
 
@@ -517,15 +553,17 @@ Point to the terminal showing tests passing.
 | 2 | Plan Mode + security review + bug fix | 4 min | No |
 | 3 | Governed feature delivery (spec → build → ship) | 7 min | No |
 | 4 | DevSecOps transformation (`/devsecops-audit`) | 5 min | Yes |
-| 5 | Refactoring with `/simplify` | 2 min | Yes |
+| 5 | Refactor + ship feature through the pipeline | 2 min | Yes |
 | **Core (Acts 1–3)** | | **13 min** | |
 | **Full run (Acts 1–5)** | | **20 min** | |
 
 **Cut decision guide:**
 - 13 min available → Acts 1–3 only, close with `/ship` narration
-- 15 min available → Acts 1–3 + Act 5 (refactor is faster and more visual than DevSecOps)
+- 15 min available → Acts 1–3 + Act 5 (requires Act 4 merged — skip if time is tight)
 - 18 min available → Acts 1–4, skip Act 5
 - 20 min available → all five acts
+
+> **Act 5 dependency:** requires the `devsecops-hardening` PR from Act 4 to be merged before running. If you skip Act 4, skip Act 5 too.
 
 **Fallback (Option A):** if DevSecOps pre-setup wasn't done or time is tight, replace Act 4 with:
 ```bash
