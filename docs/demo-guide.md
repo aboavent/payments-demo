@@ -360,6 +360,8 @@ Point out:
 **Narration:**
 > "Notice merging is blocked — CI passed but there's no reviewer yet. That's the rule working exactly as intended. In a 120-engineer org, a second set of eyes is required before anything touches main. Not optional, not a convention — enforced by the platform. The security checklist in the description? Pre-populated automatically from the template we created five minutes ago."
 
+> **Presenter note:** You're the sole collaborator so you can't approve your own PR — that's by design in GitHub. Don't try to work around it. The blocked state is the demo payoff, not a problem. Leave the PR open and move on.
+
 **2. The CI workflow running**
 Go to `https://github.com/aboavent/payments-demo/actions`.
 
