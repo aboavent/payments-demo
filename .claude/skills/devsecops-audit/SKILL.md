@@ -41,7 +41,8 @@ Do not proceed to implementation without confirmation.
 - Run `.venv/bin/pytest tests/ -q` after any change to `app/` or `tests/`
 - For `.github/` changes: explain what each file does and why
 - Never commit secrets or credentials
-- Branch protection rules cannot be set via files — provide the exact GitHub UI steps or `gh api` command instead
+- **Do NOT run any git commands** — no `git checkout`, `git add`, `git commit`, `git push`, no `gh pr create`. Stop after creating the files. The human runs Step 4 themselves.
+- Branch protection is applied via `gh api` in Step 5 — do not run it here
 
 ---
 
@@ -100,5 +101,12 @@ Report:
 ```
 FIXED:   .github/workflows/ci.yml — runs pytest on every PR
 NEXT:    .github/pull_request_template.md
-PENDING: branch protection (manual step in GitHub settings)
+PENDING: Step 4 (human runs git + gh pr create), Step 5 (branch protection via gh api)
 ```
+
+## When all files are created
+
+Stop. Tell the user:
+> "Files created. Run Step 4 to commit and open the PR."
+
+Do not proceed to git or gh commands.

@@ -302,6 +302,8 @@ Claude creates `.github/pull_request_template.md` — includes test checklist, s
 
 ### Step 4 — Commit and open a PR
 
+Claude stops after creating the files — it does not commit. You run these commands in Terminal 2:
+
 ```bash
 git checkout -b devsecops-hardening
 git add .github/
@@ -311,6 +313,8 @@ gh pr create --fill
 ```
 
 The PR opens in GitHub. Show the browser — the CI workflow is running, the PR template is pre-populated with the security checklist.
+
+> **If `git checkout -b devsecops-hardening` fails** with "branch already exists", the reset script did not run cleanly. Run `bash scripts/demo-reset.sh` to clean up, then retry.
 
 **Narration:**
 > "The pipeline is live. The PR template is enforced. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
