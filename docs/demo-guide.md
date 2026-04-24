@@ -160,23 +160,24 @@ Close `/agents` and move on. The live subagent demo happens in Act 4.
 **Narration before starting:**
 > "Now I want to show you something you won't see in any other coding assistant. Not Claude writing code faster — Claude enforcing a *process* before writing code. This is what enterprise-scale adoption actually looks like."
 
-### Step 0 — Try to skip the workflow (30 seconds)
+### Step 0 — Try to skip the workflow (45 seconds)
 
-Before running `/spec`, type this directly:
+Try each command in order — each one is blocked until the previous phase is complete:
 
-```
-/build   task 1
-```
-
-Claude refuses and responds:
+**Attempt 1:** Type `/build task 1` → refused:
 ```
 ⛔ No spec found in docs/specs/.
-The 4-phase workflow requires a spec before implementation.
-Run /spec first to define the scope and acceptance criteria.
+Run /spec first.
 ```
 
-**Narration:**
-> "Notice Claude refused. Not because I told it to in this session — because CLAUDE.md encodes the 4-phase workflow as a permanent project rule. A junior engineer can't skip the spec phase, can't skip the plan phase. The governance is structural, not voluntary. That's the difference between a policy document and an enforced process."
+**Attempt 2:** Type `/plan` → refused:
+```
+⛔ No spec found in docs/specs/.
+Run /spec first.
+```
+
+**Narration after both refusals:**
+> "Both refused — build can't run without a plan, and plan can't run without a spec. Not because I set rules in this session — because the workflow is encoded in the skills themselves. A junior engineer joining FinTechCo on day one runs into the same gates. The governance is structural, not voluntary. That's the difference between a policy document and an enforced process."
 
 ### Step 1 — Spec
 

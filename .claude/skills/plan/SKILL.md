@@ -11,6 +11,20 @@ Decompose the approved spec into small, verifiable tasks. Each task must be impl
 
 ---
 
+## Workflow gate — check before doing anything
+
+**Spec exists?** Check `docs/specs/` for a relevant spec file.
+- If no spec file exists → stop and respond:
+  ```
+  ⛔ No spec found in docs/specs/.
+  The 4-phase workflow requires a spec before planning.
+  Run /spec first to define the scope and acceptance criteria.
+  ```
+
+Only proceed if a spec is in place.
+
+---
+
 ## Planning rules
 
 - Read-only mode during planning — no code changes
