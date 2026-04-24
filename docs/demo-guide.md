@@ -306,8 +306,8 @@ Claude stops after creating the files — it does not commit. You run these comm
 
 ```bash
 git checkout -b devsecops-hardening
-git add .github/
-git commit -m "add CI pipeline and PR template"
+git add .github/ .gitignore requirements.txt
+git commit -m "add CI pipeline, PR template, and security hardening"
 git push -u origin devsecops-hardening
 gh pr create --fill
 ```
