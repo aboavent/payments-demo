@@ -17,14 +17,4 @@ def list_alerts(limit: int = 50) -> list[Alert]:
 
 
 def check_suspicious_transfer(transfer) -> Alert | None:
-    # --- DEMO EXTENSION POINT ---
-    # Uncomment to enable suspicious transfer alerting:
-    # from app.config import SUSPICIOUS_TRANSFER_THRESHOLD
-    # if transfer.amount >= SUSPICIOUS_TRANSFER_THRESHOLD:
-    #     return create_alert(
-    #         title="Suspicious Transfer Detected",
-    #         message=f"Transfer of ${transfer.amount:,.2f} from '{transfer.originator}' exceeds threshold.",
-    #         severity=AlertSeverity.WARNING,
-    #         transfer_id=transfer.id,
-    #     )
     return None

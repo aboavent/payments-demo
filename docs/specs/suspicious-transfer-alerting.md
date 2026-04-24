@@ -1,62 +1,46 @@
 # Spec: Add Suspicious Transfer Alerting
 
-## Assumptions
-
-1. The existing commented-out stubs are the complete intended implementation — no redesign needed
-2. Severity stays `WARNING` for all transfers at or above the threshold
-3. No additional audit event is needed for alert creation — `transfer_submitted` already covers it
-4. No UI or template changes needed — the alerts panel already renders any alerts in the store
-
----
-
 ## Problem statement
-
-When a transfer is submitted at or above `SUSPICIOUS_TRANSFER_THRESHOLD` ($10,000), no alert is raised. Operators have no automated visibility into high-value transfers. Two prepared stubs exist but are commented out — uncommenting them closes the gap.
+Suspicious transfer alerting exists as a stub but is inactive — `check_suspicious_transfer()` returns `None` unconditionally and is never called. Transfers above $10,000 are processed with no alert raised, leaving fraud detection dormant.
 
 ## Scope
-
-Activate the two existing stubs: `check_suspicious_transfer()` in `alerts.py` and its call site in `ach.py`. No new logic is written.
+Implement threshold-based alerting in `alerts.py` and wire the call into `ach.py`.
 
 ## Non-goals
-
-- No new models, routes, or templates
-- No change to threshold value or severity levels
-- No audit event specific to alert creation
-- No email, webhook, or any external notification
-- No UI changes — alerts panel already works
+- No changes to `config.py`, `models.py`, `repository.py`, `routes.py`, or any template
+- No email or external notification
+- No UI changes — the alerts panel already renders whatever is in the store
+- No change to the threshold value
 
 ## Files affected
 
 | File | Change type | Why |
 |---|---|---|
-| `app/services/alerts.py` | modify | Uncomment `check_suspicious_transfer()` body (lines 23–32) |
-| `app/services/ach.py` | modify | Uncomment the import and call at lines 32–33 |
+| `app/services/alerts.py` | modify | Implement `check_suspicious_transfer()` — read threshold, create WARNING alert if exceeded |
+| `app/services/ach.py` | modify | Import and call `check_suspicious_transfer(transfer)` after the audit log |
+| `tests/test_alerts.py` | add | Tests for above/below/at-threshold behavior |
 
 ## Acceptance criteria
-
-- [ ] Submitting a transfer of exactly $10,000 creates a `WARNING` alert visible in the UI
-- [ ] Submitting a transfer of $10,001 also creates a `WARNING` alert
-- [ ] Submitting a transfer of $9,999 creates no alert
-- [ ] Audit event still fires on every transfer regardless of amount
-- [ ] All existing tests still pass
+- [ ] Transfer >= $10,000 creates a `WARNING` alert visible in the UI alerts panel
+- [ ] Transfer < $10,000 creates no alert
+- [ ] Transfer of exactly $10,000 creates an alert (boundary: `>=`)
+- [ ] All existing 10 tests still pass
+- [ ] Alert message contains no account number or routing number
 
 ## Test plan
-
-New file `tests/test_alerts.py`:
-- `test_transfer_at_threshold_creates_alert` — submit $10,000, assert one `WARNING` alert linked to the transfer id
-- `test_transfer_above_threshold_creates_alert` — submit $15,000, assert alert created
-- `test_transfer_below_threshold_creates_no_alert` — submit $9,999, assert no alerts exist
+In `tests/test_alerts.py`:
+- `test_alert_created_above_threshold` — $15,000 transfer → 1 alert, severity `WARNING`
+- `test_no_alert_below_threshold` — $5,000 transfer → 0 alerts
+- `test_alert_created_at_threshold` — $10,000 transfer → 1 alert
 
 ## Rollout / rollback
-
-**Rollout:** restart `uvicorn app.main:app --reload`. No migrations, no state changes.
-**Rollback:** re-comment the two lines in `ach.py` and the function body in `alerts.py`. Server restart resets in-memory state.
+Rollout: restart `uvicorn app.main:app`. No migrations, no persistent state.
+Rollback: revert `ach.py` and `alerts.py`. Store resets on restart.
 
 ## Risks and assumptions
-
-- `float` comparison (`amount >= threshold`) is sufficient for a demo; a production system would use `Decimal`
-- Alert message includes the full UUID transfer id — acceptable for demo purposes
+- `check_suspicious_transfer` return value is unused in `ach.py` — fire-and-forget, correct by design.
+- `clear_store` fixture is `autouse=True` in `conftest.py` — test isolation is automatic.
+- Threshold imported from `app.config.SUSPICIOUS_TRANSFER_THRESHOLD` — no magic numbers.
 
 ## Open questions
-
-None. Implementation is fully defined by the existing stubs. Ready for `/plan`.
+None.

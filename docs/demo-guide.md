@@ -23,8 +23,8 @@ Verify:
 - [ ] Page loads with empty form, empty alerts panel, empty audit log
 - [ ] Claude Code is open in this directory (CLAUDE.md and skills are loaded)
 - [ ] Tests pass: `.venv/bin/pytest tests/ -q` → 10 passed
-- [ ] `app/services/alerts.py` — `check_suspicious_transfer()` body is **commented out**
-- [ ] `app/services/ach.py` — import and call are **commented out**
+- [ ] `app/services/alerts.py` — `check_suspicious_transfer()` returns `None` (stub, no logic)
+- [ ] `app/services/ach.py` — `check_suspicious_transfer` is not imported or called
 - [ ] Terminal and browser are side by side on screen ← critical for Act 3
 
 > **Important:** Run `uvicorn app.main:app` without `--reload`. The `--reload` watcher restarts the worker process on file changes, wiping the in-memory store mid-demo.
@@ -66,7 +66,7 @@ If you try to run Act 4 again without resetting, `git push origin devsecops-hard
 |---|---|
 | Stops uvicorn | Clears port 8000 |
 | `git checkout -f main` | Discards all uncommitted changes, returns to baseline |
-| Restores `ach.py` + `alerts.py` | Extension point stubs back to commented-out state |
+| Restores `ach.py` + `alerts.py` | Back to stub state — `check_suspicious_transfer` returns `None`, not called from `ach.py` |
 | Removes `tests/test_alerts.py` | Test file belongs to the feature, not the baseline |
 | Removes `.github/` | Must not exist at demo start — Claude creates it live in Act 4 |
 | Closes open PR on GitHub | So `gh pr create` works cleanly on the next run |
@@ -186,10 +186,10 @@ Run /spec first.
 /spec   add suspicious transfer alerting
 ```
 
-Claude produces a structured spec: problem statement, files affected, acceptance criteria, test plan, rollback notes.
+Claude produces a structured spec: problem statement, files affected, acceptance criteria, test plan, rollback notes. It identifies that `check_suspicious_transfer()` is a stub returning `None`, and that `ach.py` never calls it — so no alerting logic runs at all.
 
 **Narration:**
-> "Before a single line of code is written, we have a documented spec saved to `docs/specs/`. This is Phase 2 of the 4-phase workflow encoded in CLAUDE.md. The spec is the contract — Claude cannot deviate from it during implementation."
+> "Before a single line of code is written, we have a documented spec saved to `docs/specs/`. This is Phase 2 of the 4-phase workflow encoded in CLAUDE.md. The spec is the contract — Claude identified exactly what's missing, proposed the implementation, and cannot deviate from it during build."
 
 Review the spec. Point out the acceptance criteria. Approve it.
 
@@ -213,7 +213,7 @@ Make sure Terminal 1 (server) and the browser are visible alongside Claude Code.
 /build   task 2
 ```
 
-Run both tasks back-to-back. Task 1 wires up `alerts.py` (the detection logic). Task 2 wires up `ach.py` (the call site). **Both tasks are required before the feature is visible in the browser** — `alerts.py` alone does nothing until `ach.py` calls it.
+Run both tasks back-to-back. Task 1 implements the detection logic in `alerts.py` — reads the threshold from config and creates a `WARNING` alert. Task 2 wires the call into `ach.py` so it fires on every submitted transfer. **Both tasks are required before the feature is visible in the browser** — `alerts.py` alone does nothing until `ach.py` calls it.
 
 After each file save, **pytest fires automatically inside the Claude Code terminal** via the PostToolUse hook — without anyone asking.
 

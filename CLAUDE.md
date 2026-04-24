@@ -206,8 +206,8 @@ The suspicious transfer alerting feature is **intentionally incomplete**:
 | File | What exists | What's missing |
 |---|---|---|
 | `app/config.py` | `SUSPICIOUS_TRANSFER_THRESHOLD = 10_000.00` | Nothing — value is live |
-| `app/services/alerts.py` | `check_suspicious_transfer()` — written but commented out | Uncomment function body |
-| `app/services/ach.py` | `# DEMO EXTENSION POINT` + commented import and call | Uncomment 2 lines to wire up |
+| `app/services/alerts.py` | `check_suspicious_transfer()` stub — returns `None` | Implement threshold check and alert creation |
+| `app/services/ach.py` | `submit_transfer()` — saves transfer and logs audit event | Import and call `check_suspicious_transfer(transfer)` after audit |
 
 The UI alerts panel already renders any alerts in the store — no template changes needed.
 
