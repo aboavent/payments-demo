@@ -360,9 +360,11 @@ EOF
 )"
 ```
 
-`gh pr create` prints the PR URL — open it in the browser for Step 6.
+`gh pr create` prints the PR URL — keep it handy for Step 6.
 
 > **If `git checkout -b devsecops-hardening` fails** with "branch already exists", the reset script did not run cleanly. Run `bash scripts/demo-reset.sh` to clean up, then retry.
+
+> **Do NOT open the browser yet.** Run Step 5 first — branch protection must be in place before you show the PR, otherwise the blocked merge won't appear and Step 6 falls flat.
 
 **Narration:**
 > "The pipeline is live. The PR template is enforced — notice the security checklist is already there, pre-populated. And this is the PR that *introduced* the template. Every PR your 120 engineers open from now on gets this automatically. Claude Code didn't replace your DevSecOps engineer — it gave you one on demand, in five minutes, scoped exactly to what this repo needed."
@@ -429,6 +431,9 @@ Point out (no changes needed — everything is already set by the `gh api` comma
 
 **Narration:**
 > "Pull request required. One reviewer. CI must pass — and you can see the specific check: `test`, the exact job name from the workflow we just created. Branches must be up to date. Admins included. Every one of these was set by a single `gh api` command 60 seconds ago — no UI clicking, no ticket to your platform team. That's the difference between a policy someone might follow and a constraint the platform enforces."
+
+**Closing narration — connect back to Act 3:**
+> "Think back to the suspicious transfer feature we built in Act 3. It's tested, reviewed, and ready. When it ships, it goes through this pipeline — CI runs, a reviewer approves, the security checklist is filled in. The feature built in Act 3 now has a safe path to production. That's the full picture: Claude Code helps you build the right thing *and* ensures it ships the right way."
 
 ---
 
