@@ -178,7 +178,7 @@ All skills live in `.claude/skills/`. Each is invoked as a slash command.
 | `/test` | 4 — Implementation | Runs tests, summarizes coverage and gaps |
 | `/review` | 4 — Implementation | Multi-axis change review |
 | `/ship` | 4 — Implementation | Pre-ship checklist + rollback notes |
-| `/simplify` | Any | Identifies unnecessary complexity after a feature works |
+| `/refactor` | Any | Identifies unnecessary complexity after a feature works |
 
 ---
 

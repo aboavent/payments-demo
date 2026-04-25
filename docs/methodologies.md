@@ -52,7 +52,7 @@ NOTICED BUT NOT TOUCHING: [description]
 → Want me to create a follow-up task?
 ```
 
-The `/simplify` skill operationalizes the "simplicity first" principle as a post-feature pass, not a during-feature distraction.
+The `/refactor` skill operationalizes the "simplicity first" principle as a post-feature pass, not a during-feature distraction.
 
 ### What was left out
 
@@ -97,11 +97,11 @@ Seven skills were adapted and collapsed into this repo's seven skills:
 | `test-driven-development` + coverage | `/test` | Run and report, propose missing cases, test naming guidelines | TDD red-green-refactor cycle (tests are already written here) |
 | `code-review-and-quality` | `/review` | Five-axis review, verdict format, dead code hygiene | Multi-model review pattern, change sizing/splitting guidance, review speed SLAs |
 | `shipping-and-launch` | `/ship` | Pre-ship checklist, rollback plan format, next steps | Staged rollout, feature flags, CDN/infrastructure checks |
-| `code-simplification` | `/simplify` | Chesterton's Fence, signal/pattern table, Python examples, behavior preservation rule | Rule of 500, TypeScript/React examples, automated codemod guidance |
+| `code-simplification` | `/refactor` | Chesterton's Fence, signal/pattern table, Python examples, behavior preservation rule | Rule of 500, TypeScript/React examples, automated codemod guidance |
 
 ### Key ideas preserved
 
-**Chesterton's Fence** (from `/simplify`): Before removing or changing anything, understand why it exists. If you can't explain why the fence is there, don't tear it down.
+**Chesterton's Fence** (from `/refactor`): Before removing or changing anything, understand why it exists. If you can't explain why the fence is there, don't tear it down.
 
 **Vertical slicing** (from `/plan`): Build one complete working path before building the next. Don't build all the DB, then all the API, then all the UI — build one user-visible flow end to end.
 

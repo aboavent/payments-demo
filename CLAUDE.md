@@ -29,7 +29,7 @@ tests/
     ci.yml         # GitHub Actions: run pytest on every PR
   pull_request_template.md  # Security checklist enforced on every PR
 .claude/
-  skills/          # Invokable workflows: spec, plan, build, review, ship, test, simplify, devsecops-audit
+  skills/          # Invokable workflows: spec, plan, build, review, ship, test, refactor, devsecops-audit
   agents/          # Specialist subagents spawned by /devsecops-audit in parallel:
                    #   ci-audit, pr-hygiene-audit, secrets-audit,
                    #   branch-protection-audit, dependency-audit

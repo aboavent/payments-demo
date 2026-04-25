@@ -447,14 +447,14 @@ In the browser, merge the `devsecops-hardening` PR using **Merge as admin** (the
 
 **When to run:** only if you have 2+ minutes after Act 4. Requires the `devsecops-hardening` PR to be merged first (done at the end of Act 4 above).
 
-### Step 1 — Refactor with `/simplify`
+### Step 1 — Refactor with `/refactor`
 
 After Act 3, `ach.py` has a local import inside the function body (`from app.services.alerts import check_suspicious_transfer`). It was written that way intentionally — keeping each build task isolated. Now that the feature is complete, Claude can propose moving it to the standard top-level location.
 
 In Claude Code, type:
 
 ```
-/simplify
+/refactor
 ```
 
 Claude reads `ach.py`, identifies the unconventional local import, explains why it was written that way during the build phase, and proposes moving it to the top of the file alongside the other imports.

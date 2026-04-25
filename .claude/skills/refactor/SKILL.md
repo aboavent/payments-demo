@@ -1,9 +1,9 @@
 ---
-name: simplify
+name: refactor
 description: Identifies unnecessary complexity and proposes simpler alternatives. Use after a feature works and tests pass, when code feels heavier than it needs to be.
 ---
 
-# /simplify — Complexity Review
+# /refactor — Complexity Review
 
 Find what is more complex than it needs to be and propose simpler alternatives. Preserve behavior exactly.
 
@@ -63,4 +63,4 @@ Then:
 - Do not simplify unrelated files unless explicitly asked
 - Do not reduce line count at the expense of readability
 - Do not remove abstractions that exist for testability
-- Submit simplifications separately from feature changes
+- Submit refactors separately from feature changes

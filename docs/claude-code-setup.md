@@ -152,9 +152,9 @@ Closes with a "SHIPPED / STILL STUBBED / NATURAL NEXT" summary.
 
 **When to invoke:** after `/review` passes, before declaring the feature done.
 
-### `/simplify` — Complexity Review
+### `/refactor` — Complexity Review
 
-**File:** `.claude/skills/simplify/SKILL.md`
+**File:** `.claude/skills/refactor/SKILL.md`
 
 Post-feature pass to identify unnecessary complexity. Applies Chesterton's Fence: understand why code exists before removing or changing it. Produces a candidate table (file, issue, before, after, behavior preserved) with a recommendation on what to apply and what to skip.
 
