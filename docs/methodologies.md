@@ -115,10 +115,10 @@ Seven skills were adapted and collapsed into this repo's seven skills:
 
 Most of the library is irrelevant for a small demo:
 - Frontend skills (browser testing, UI engineering) — the UI is static templates
-- CI/CD skills — no pipeline exists
-- Git workflow skills — single-branch demo, no PR process
 - API design skills — one internal route, no external API
 - Performance optimization — not a concern at this scale
+
+> **Note:** CI/CD and git workflow skills were initially left out but are now covered by `/devsecops-audit` — a custom skill that audits and sets up GitHub Actions CI, PR templates, branch protection, and Dependabot in one command. The repo has a full delivery pipeline established live during Act 5 of the demo.
 
 The common rationalizations and red flags sections in each skill were condensed or omitted. They're valuable in a large team context; in a demo they add length without adding clarity.
 

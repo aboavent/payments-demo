@@ -162,6 +162,32 @@ Behavior preservation is the hard rule: if a simplification requires modifying t
 
 **When to invoke:** after a feature is working and tests pass, when the implementation feels heavier than it needs to be.
 
+### `/devsecops-audit` — DevSecOps Posture Audit
+
+**File:** `.claude/skills/devsecops-audit/SKILL.md`
+
+Audits the repo's CI/CD and security posture by spawning five specialist subagents simultaneously — one per audit axis:
+
+| Subagent | What it checks |
+|---|---|
+| `ci-audit` | GitHub Actions workflows; pytest runs on PRs; Python version pinning |
+| `pr-hygiene-audit` | PR template with security checklist, test plan, rollback path |
+| `secrets-audit` | Hardcoded credentials, `.gitignore` coverage, sensitive field exposure |
+| `branch-protection-audit` | Required reviews, status checks, direct push prevention |
+| `dependency-audit` | Pinned versions, Dependabot configuration, known vulnerable packages |
+
+Claude consolidates the five results into a findings table (Risk / Note / OK per axis), then fixes each gap: creates `.github/workflows/ci.yml`, `.github/pull_request_template.md`, `.github/dependabot.yml`. Branch protection is applied via `gh api` by the presenter (Step 5 in Act 5).
+
+**When to invoke:** when onboarding a repo to GitHub best practices, or during the DevSecOps act of the demo.
+
+### `/demo-reset` — Demo Reset
+
+**File:** `.claude/skills/demo-reset/SKILL.md`
+
+Runs `bash scripts/demo-reset.sh` and verifies the repo is in the correct baseline state: 10 tests pass, stubs restored, `.github/` removed, on `main` branch.
+
+**When to invoke:** before every demo run.
+
 ---
 
 ## Settings
@@ -221,34 +247,49 @@ Personal overrides for this project (not committed to git, listed in `.gitignore
 ## How it all fits together in a demo session
 
 ```
-Session starts
+/demo-reset → baseline confirmed (10 tests pass, stubs clean, no .github/)
     ↓
-CLAUDE.md loads automatically
+Session starts — CLAUDE.md loads automatically
 (Claude knows: architecture, workflow, principles, extension point)
+
+── Act 2: Security review ──────────────────────────────────────────────
+Plan Mode (Shift+Tab) → read-only audit, no file changes possible
+"review the input validation in this app"
+→ Claude finds routing_number validated only in HTML, not at route boundary
+Exit Plan Mode → "fix it" → routes.py updated, hook fires, 10 passed
     ↓
-Task arrives: "add suspicious transfer alerting"
+── Act 3: Governed feature delivery ────────────────────────────────────
+/build task 1  → refused: no spec
+/plan          → refused: no spec
+/spec   add suspicious transfer alerting
     ↓
-CLAUDE.md: decision framework → full 4-phase (multi-file, medium risk)
+/plan   → atomic tasks with acceptance criteria saved to docs/plans/plan.md
     ↓
-Phase 1: Research (Claude reads ach.py, alerts.py, config.py, tests)
+/build task 1  → alerts.py implemented; hook fires → pytest runs
+/build task 2  → ach.py wired; hook fires → 13 passed
     ↓
-/spec   → produces spec, surfaces assumptions
+Browser: submit $15,000 transfer → WARNING alert appears
     ↓
-Phase 3: Refinement (one clarifying question if needed)
-    ↓
-/plan   → atomic tasks with acceptance criteria
-    ↓
-/build task 1
-    ↓
-[Edit ach.py] → hook fires → pytest runs → "10 passed" in status bar
-    ↓
-[Edit alerts.py] → hook fires → pytest runs → "10 passed"
-    ↓
-/test   → confirms coverage
-    ↓
-/review → all axes OK, no blocking issues
-    ↓
+/review → all axes OK; writes docs/plans/review.done
 /ship   → checklist complete; rollback: revert two files
+    ↓
+── Act 4: Data science (narrated) ──────────────────────────────────────
+DS scenario: fraud threshold calibration in Jupyter
+Same CLAUDE.md governance, same pipeline, different persona
+    ↓
+── Act 5: DevSecOps transformation ─────────────────────────────────────
+/devsecops-audit
+→ 5 subagents spawn in parallel (ci, pr-hygiene, secrets, branch, deps)
+→ findings table: CI missing, PR template missing, branch protection missing
+→ Claude creates .github/workflows/ci.yml, pull_request_template.md, dependabot.yml
+→ Presenter runs: git checkout -b devsecops-hardening && git push && gh pr create
+→ Presenter runs: gh api ... branch protection
+→ Browser: PR blocked, CI passing, security checklist pre-populated
+    ↓
+── Act 6: Refactor + ship (optional) ───────────────────────────────────
+/refactor → local import in ach.py moved to top; hook fires → 13 passed
+→ Presenter runs: git checkout -b feature/... && gh pr create
+→ Feature ships through the pipeline Act 5 just established
 ```
 
-The entire workflow — from research to shipping — runs inside one Claude Code session, with no external tools, no pipeline, and no context switching.
+The entire workflow — from research to shipping through a governed pipeline — runs inside one Claude Code session, with the delivery infrastructure established live during the demo.

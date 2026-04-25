@@ -141,7 +141,7 @@ All service functions call repository functions — services never touch the lis
 
 `list_alerts(limit)` returns alerts newest-first.
 
-`check_suspicious_transfer(transfer)` — **written but commented out**. This is the demo extension point.
+`check_suspicious_transfer(transfer)` — **stub returning `None`**. This is the demo extension point. The function exists with the correct signature but no logic — Claude proposes and implements the threshold check live during the demo.
 
 ### `app/services/audit.py` — Audit logging
 
@@ -158,9 +158,15 @@ All service functions call repository functions — services never touch the lis
 | Method | Path | What it does |
 |---|---|---|
 | `GET` | `/` | Renders `index.html` with transfers, alerts, and audit events |
-| `POST` | `/transfers` | Accepts form data, calls `ach.submit_transfer()`, redirects to `/` |
+| `POST` | `/transfers` | Validates form data, calls `ach.submit_transfer()`, redirects to `/` |
 
 The redirect after POST follows the standard POST-Redirect-GET pattern to prevent form resubmission on refresh.
+
+**Server-side validation** is enforced in `routes.py` before any service call:
+- `routing_number` must match exactly 9 digits (`^\d{9}$`) — raises HTTP 422 if invalid
+- `account_number` must be non-empty after stripping whitespace — raises HTTP 422 if empty
+
+HTML form attributes (`pattern`, `required`) are client-side only and trivially bypassed by a direct POST. The route boundary is the authoritative validation layer, per the security expectations in `CLAUDE.md`.
 
 ---
 
@@ -207,31 +213,24 @@ SUSPICIOUS_TRANSFER_THRESHOLD: float = 10_000.00
 
 ## Extension point — Suspicious transfer alerting
 
-This feature is **intentionally not wired up**. It is the live demo addition.
+This feature is **intentionally incomplete**. It is the live demo addition in Act 3.
 
 ### What already exists
 
 | Location | What's there |
 |---|---|
-| `app/config.py:6` | `SUSPICIOUS_TRANSFER_THRESHOLD = 10_000.00` — value is live |
-| `app/services/alerts.py:19–32` | `check_suspicious_transfer()` — complete function body, commented out |
-| `app/services/ach.py:31–33` | `# DEMO EXTENSION POINT` comment + two commented-out lines |
-| `templates/index.html` | Alerts panel already renders any alerts in the store |
+| `app/config.py` | `SUSPICIOUS_TRANSFER_THRESHOLD = 10_000.00` — value is live |
+| `app/services/alerts.py` | `check_suspicious_transfer(transfer)` — stub that returns `None`; no logic |
+| `app/services/ach.py` | `submit_transfer()` — saves transfer and logs audit event; does **not** call `check_suspicious_transfer` |
+| `templates/index.html` | Alerts panel already renders any alerts in the store — no template change needed |
 
-### What the two-line activation looks like
+### What the demo implements (Claude proposes this live)
 
-In `app/services/ach.py`, after the audit log call:
+**Task 1 — `alerts.py`:** Implement `check_suspicious_transfer()` to read `SUSPICIOUS_TRANSFER_THRESHOLD` from config and call `create_alert()` with `AlertSeverity.WARNING` if the transfer amount meets or exceeds the threshold.
 
-```python
-# --- DEMO EXTENSION POINT ---
-# Uncomment to enable suspicious transfer alerting:
-# from app.services.alerts import check_suspicious_transfer
-# check_suspicious_transfer(transfer)
-```
+**Task 2 — `ach.py`:** Import `check_suspicious_transfer` and call it after the audit log in `submit_transfer()`.
 
-Uncomment those two lines. That's the entire wiring change.
-
-In `app/services/alerts.py`, uncomment the `check_suspicious_transfer` function body (lines 19–32). That function reads `SUSPICIOUS_TRANSFER_THRESHOLD` from config and calls `create_alert()` with `AlertSeverity.WARNING`.
+These are real code changes proposed and written by Claude during the demo — not a pre-written uncomment. The spec, plan, build, review, and ship workflow governs the entire implementation.
 
 **No template, model, repository, or route changes needed.**
 

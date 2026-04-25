@@ -179,6 +179,8 @@ All skills live in `.claude/skills/`. Each is invoked as a slash command.
 | `/review` | 4 — Implementation | Multi-axis change review |
 | `/ship` | 4 — Implementation | Pre-ship checklist + rollback notes |
 | `/refactor` | Any | Identifies unnecessary complexity after a feature works |
+| `/devsecops-audit` | Any | Audits CI/CD and security posture; spawns 5 parallel specialist subagents to fix gaps |
+| `/demo-reset` | Setup | Restores baseline state between demo runs |
 
 ---
 
