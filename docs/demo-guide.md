@@ -258,7 +258,52 @@ Run /review first.
 
 ---
 
-## Act 4 — DevSecOps transformation (5 min) ✂️ cut if short on time
+## Act 4 — Data science workflow (3 min) ✂️ cut if short on time
+
+**What this shows:** Claude Code is not a tool for software engineers only. The same governance model — same CLAUDE.md, same workflow discipline — applies to the 40 data scientists on the fraud detection, credit scoring, and customer behavior teams. Directly bridges the suspicious transfer alerting feature from Act 3 to the DS team's world.
+
+**When to run:** After Act 3. No pre-setup required — this is a narrated walkthrough, not a live Jupyter build. Takes 3 minutes; can be shortened to 90 seconds with narration only.
+
+### Transition narration
+
+> "The suspicious transfer alerting feature we just built — threshold-based anomaly detection on ACH transfers — is a simplified version of exactly what your fraud detection data scientists build every day. Let me show you what Claude Code looks like in their environment."
+
+### Step 1 — Show the DS scenario (narrated, no live coding required)
+
+Narrate the following scenario while optionally showing a pre-existing Jupyter notebook (or just speaking to the slides):
+
+**Scenario:** The fraud team asks: "Is our $10,000 alert threshold calibrated correctly against actual transfer patterns? Should it be higher or lower?"
+
+In a typical DS workflow without Claude Code:
+- Pull historical transfer data manually (hours of wrangling)
+- Write EDA code from scratch
+- Build a distribution analysis notebook
+- Manually convert findings to a pipeline function
+- Submit a PR with no spec, no review gate, no compliance check
+
+**With Claude Code in Jupyter:**
+
+> "The data scientist opens Claude Code in their notebook environment and types: 'analyze the distribution of historical ACH transfer amounts and recommend whether our $10,000 suspicious transfer threshold is well-calibrated.' Claude reads the data, runs the analysis, produces a visualization, and — critically — flags that the routing number column should not appear in the output. That flag comes from CLAUDE.md — the same compliance policy that governed the payments service."
+
+**Narration:**
+> "Same tool. Same governance. The data scientist didn't configure anything differently. CLAUDE.md traveled with the operating model. The fraud team gets the EDA done in minutes instead of hours, the compliance rule was enforced automatically, and the output is ready to promote to a production pipeline."
+
+### Step 2 — The pipeline bridge (30 seconds)
+
+> "When the analysis is complete, the DS asks Claude: 'convert this notebook into a production-ready pipeline function.' Claude generates the pipeline code. The DS submits it as a PR — through the same GitHub Actions CI the SE team uses, the same PR template with the security checklist, the same branch protection that requires a reviewer. One operating model. Three teams."
+
+### Step 3 — The 1–2 days statistic
+
+Point to the stat from the Anthropic customer (Intercom VP of AI):
+
+**Narration:**
+> "'This process saves 1–2 days of routine work per model.' At 40 data scientists, even recovering one day per week per person is 40 DS-days per week — 2,000 days per year — available for new model development instead of pipeline boilerplate. That's faster fraud detection. Better credit scoring models. More accurate customer behavior analysis. Not because the data scientists are more skilled — because the operating model removed the friction that was wasting their time."
+
+---
+
+## Act 5 — DevSecOps transformation (5 min) ✂️ cut if short on time
+
+> **Note:** Previously Act 4. Renumbered to accommodate the DS workflow act.
 
 **What this shows:** Claude Code as a DevSecOps engineer — auditing a repo's CI/CD posture, identifying gaps, and setting up missing infrastructure. Closes the loop for the CTO: not just writing code safely, but governing the entire delivery pipeline.
 
@@ -432,7 +477,7 @@ Point out (no changes needed — everything is already set by the `gh api` comma
 **Narration:**
 > "Pull request required. One reviewer. CI must pass — and you can see the specific check: `test`, the exact job name from the workflow we just created. Branches must be up to date. Admins included. Every one of these was set by a single `gh api` command 60 seconds ago — no UI clicking, no ticket to your platform team. That's the difference between a policy someone might follow and a constraint the platform enforces."
 
-**Closing narration — merge the PR and bridge to Act 5:**
+**Closing narration — merge the PR and bridge to Act 6:**
 > "The pipeline is in place. Now merge this PR — once it lands on main, every future PR gets CI, the security checklist, and branch protection automatically. The feature we built in Act 3 is waiting. Let's ship it the right way."
 
 In the browser, merge the `devsecops-hardening` PR using **Merge as admin** (the override button at the bottom of the PR).
@@ -441,11 +486,11 @@ In the browser, merge the `devsecops-hardening` PR using **Merge as admin** (the
 
 ---
 
-## Act 5 — Refactoring + shipping through the pipeline (2 min) ✂️ cut if short on time
+## Act 6 — Refactoring + shipping through the pipeline (2 min) ✂️ cut if short on time
 
-**What this shows:** Claude Code cleans up code after a feature ships, then commits the full feature work through the pipeline Act 4 just established. Closes the full software lifecycle: understand → secure → build → ship → improve → merge.
+**What this shows:** Claude Code cleans up code after a feature ships, then commits the full feature work through the pipeline Act 5 just established. Closes the full software lifecycle: understand → secure → build → ship → improve → merge.
 
-**When to run:** only if you have 2+ minutes after Act 4. Requires the `devsecops-hardening` PR to be merged first (done at the end of Act 4 above).
+**When to run:** only if you have 2+ minutes after Act 5. Requires the `devsecops-hardening` PR to be merged first (done at the end of Act 5 above).
 
 ### Step 1 — Refactor with `/refactor`
 
@@ -552,18 +597,21 @@ Open the PR URL in the browser. CI runs automatically. Merging is blocked until 
 | 1 | Codebase exploration | 2 min | No |
 | 2 | Plan Mode + security review + bug fix | 4 min | No |
 | 3 | Governed feature delivery (spec → build → ship) | 7 min | No |
-| 4 | DevSecOps transformation (`/devsecops-audit`) | 5 min | Yes |
-| 5 | Refactor + ship feature through the pipeline | 2 min | Yes |
+| 4 | Data science workflow (Jupyter / DS team story) | 3 min | Yes |
+| 5 | DevSecOps transformation (`/devsecops-audit`) | 5 min | Yes |
+| 6 | Refactor + ship feature through the pipeline | 2 min | Yes |
 | **Core (Acts 1–3)** | | **13 min** | |
-| **Full run (Acts 1–5)** | | **20 min** | |
+| **Full run (Acts 1–6)** | | **23 min** | |
 
 **Cut decision guide:**
 - 13 min available → Acts 1–3 only, close with `/ship` narration
-- 15 min available → Acts 1–3 + Act 5 (requires Act 4 merged — skip if time is tight)
-- 18 min available → Acts 1–4, skip Act 5
-- 20 min available → all five acts
+- 16 min available → Acts 1–3 + Act 4 (DS story — adds audience coverage without setup risk)
+- 18 min available → Acts 1–3 + Act 5 (DevSecOps — skip Act 4 if skipping DS story)
+- 20 min available → Acts 1–5
+- 23 min available → all six acts
 
-> **Act 5 dependency:** requires the `devsecops-hardening` PR from Act 4 to be merged before running. If you skip Act 4, skip Act 5 too.
+> **Act 4 (DS):** narrated — no live coding, no pre-setup. Safest optional act to add when you have 3 extra minutes.
+> **Act 6 dependency:** requires the `devsecops-hardening` PR from Act 5 to be merged before running. If you skip Act 5, skip Act 6 too.
 
 **Fallback (Option A):** if DevSecOps pre-setup wasn't done or time is tight, replace Act 4 with:
 ```bash
