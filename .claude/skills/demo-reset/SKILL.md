@@ -1,6 +1,6 @@
 ---
 name: demo-reset
-description: Resets the demo to baseline state. Use before every demo run to restore commented-out stubs, remove .github/, delete the feature branch, and confirm 10 tests pass.
+description: Resets the demo to baseline state. Use before every demo run to restore clean stubs, remove .github/, delete the feature branch, and confirm 10 tests pass.
 ---
 
 # /demo-reset — Reset Demo to Baseline
@@ -13,8 +13,8 @@ bash scripts/demo-reset.sh
 
 After the script completes, verify:
 - [ ] 10 tests pass
-- [ ] `app/services/ach.py` — import and call are commented out
-- [ ] `app/services/alerts.py` — function body is commented out
+- [ ] `app/services/ach.py` — does not import or call `check_suspicious_transfer`
+- [ ] `app/services/alerts.py` — `check_suspicious_transfer()` returns `None` (no logic)
 - [ ] `.github/` directory does not exist
 - [ ] On `main` branch
 

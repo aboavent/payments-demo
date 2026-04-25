@@ -812,7 +812,18 @@ Speaker note: "Leave them with one thought: the model is available to everyone. 
 **Slide 7 — Live Demo**
 *Title:* "Live Demo: ACH Transfer Operations Portal"
 *Key content:* What you'll show — codebase exploration, Plan Mode security review, spec-driven feature delivery, DevSecOps audit.
-*Visual prompt:* Demo scenario card. Three-column layout: Act (number + title), What it shows, Audience it addresses. Timer indicator at bottom.
+*Visual prompt:* Demo scenario card. Six-row table mapping each act to its audience and key message:
+
+| Act | Title | Audience | Key message |
+|---|---|---|---|
+| Act 1 (2 min) | Codebase exploration | CTO + Head of DT | Onboarding in 30 seconds |
+| Act 2 (4 min) | Plan Mode + security review | CTO | Read-only compliance audit; surgical fix |
+| Act 3 (7 min) | Governed feature delivery | CTO + Head of DT | Spec → plan → build → review → ship enforced |
+| Act 4 (3 min) | Data science workflow | Head of DT + DS teams | Same governance in Jupyter; 1–2 days/model saved |
+| Act 5 (5 min) | DevSecOps transformation | CTO | CI + branch protection in 5 minutes |
+| Act 6 (2 min) | Refactor + ship | Head of DT | Feature ships through the pipeline just established |
+
+Timer indicator at bottom. Acts 4–6 marked as optional/cuttable.
 
 **Slide 8 — Real ROI**
 *Title:* "Real ROI = Faster Throughput + Lower Rework"

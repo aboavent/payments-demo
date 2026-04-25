@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ## Run
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app
 ```
 
 Open http://localhost:8000 in your browser.
@@ -55,12 +55,20 @@ payments-demo/
     └── test_audit.py
 ```
 
-## Extension Points: Suspicious Transfer Alerting
+## Extension Point: Suspicious Transfer Alerting
 
-Two uncommenting steps wire in threshold-based alerting end-to-end:
+The suspicious transfer alerting feature is intentionally incomplete and is built live during Act 3 of the demo.
 
-1. **`app/services/alerts.py`** — uncomment `check_suspicious_transfer()`. It compares the transfer amount against `SUSPICIOUS_TRANSFER_THRESHOLD` (set to `$10,000` in `app/config.py`) and calls `create_alert()` when the threshold is met.
+**Baseline state (what exists at reset):**
+- `app/config.py` — `SUSPICIOUS_TRANSFER_THRESHOLD = 10_000.00` (live value)
+- `app/services/alerts.py` — `check_suspicious_transfer(transfer)` returns `None` (stub, no logic)
+- `app/services/ach.py` — does not import or call `check_suspicious_transfer`
+- `templates/index.html` — alerts panel already renders any alerts in the store
 
-2. **`app/services/ach.py`** — uncomment the two lines inside `submit_transfer()` marked `DEMO EXTENSION POINT` that import and call `check_suspicious_transfer(transfer)`.
+**What the demo builds live (Act 3):**
+1. `/spec add suspicious transfer alerting` — produces a structured spec
+2. `/plan` — breaks work into atomic tasks
+3. `/build task 1` — implements threshold check in `alerts.py`
+4. `/build task 2` — wires the call into `ach.py`
 
-No other changes are needed. `SUSPICIOUS_TRANSFER_THRESHOLD` is already live in `app/config.py`, and the alerts panel in the UI already renders any alerts in the store.
+No manual code editing. The feature is implemented live by Claude Code through the full spec → plan → build → review → ship workflow. See `docs/demo-guide.md` Act 3 for the full walkthrough.
