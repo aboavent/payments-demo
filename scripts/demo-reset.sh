@@ -141,6 +141,9 @@ rm -f docs/specs/suspicious-transfer-alerting.md
 echo "==> Removing plan file (Claude writes this live during /plan)..."
 rm -f docs/plans/plan.md
 
+echo "==> Restoring app/config.py threshold (Act 4 raises it to \$25k — reset to \$10k)..."
+sed -i '' 's/^SUSPICIOUS_TRANSFER_THRESHOLD:.*$/SUSPICIOUS_TRANSFER_THRESHOLD: float = 10_000.00/' app/config.py
+
 echo "==> Removing workflow markers (build.done, review.done)..."
 rm -f docs/plans/build.done docs/plans/review.done
 
@@ -171,4 +174,4 @@ echo "==> Running tests to confirm baseline..."
 
 echo ""
 echo "✓ Demo reset complete. GitHub is clean — no open PRs, no feature branch."
-echo "  Start the server with: uvicorn app.main:app"
+echo "  Start the server with: uvicorn app.main:app --reload"

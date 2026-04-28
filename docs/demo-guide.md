@@ -14,7 +14,7 @@
 cd payments-demo
 source .venv/bin/activate            # activate the virtual environment
 bash scripts/demo-reset.sh          # restores baseline, confirms 10 tests pass
-uvicorn app.main:app                 # NO --reload (see note below)
+uvicorn app.main:app --reload        # --reload required for Act 4 live config change
 ```
 
 Open **http://127.0.0.1:8000** in a browser.
@@ -27,7 +27,7 @@ Verify:
 - [ ] `app/services/ach.py` — `check_suspicious_transfer` is not imported or called
 - [ ] Terminal and browser are side by side on screen ← critical for Act 3
 
-> **Important:** Run `uvicorn app.main:app` without `--reload`. The `--reload` watcher restarts the worker process on file changes, wiping the in-memory store mid-demo.
+> **Important:** Run with `--reload`. Act 4 edits `app/config.py` live — `--reload` picks up the change automatically without a manual restart. The in-memory store is wiped on each reload, but Act 4 happens after Act 3's feature demo is complete so this is safe.
 
 ### Screen layout
 
@@ -51,7 +51,7 @@ Arrange your screen in three columns:
 ```bash
 source .venv/bin/activate
 bash scripts/demo-reset.sh
-uvicorn app.main:app
+uvicorn app.main:app --reload
 ```
 
 **What the reset script does — and why you don't need to delete the GitHub repo:**
@@ -67,6 +67,7 @@ If you try to run Act 4 again without resetting, `git push origin devsecops-hard
 | Stops uvicorn | Clears port 8000 |
 | `git checkout -f main` | Discards all uncommitted changes, returns to baseline |
 | Restores `ach.py` + `alerts.py` | Back to stub state — `check_suspicious_transfer` returns `None`, not called from `ach.py` |
+| Restores `app/config.py` threshold | Act 4 raises it to `$25,000` — reset back to `$10,000` |
 | Removes `tests/test_alerts.py` | Test file belongs to the feature, not the baseline |
 | Removes `.github/` | Must not exist at demo start — Claude creates it live in Act 4 |
 | Closes open PR on GitHub | So `gh pr create` works cleanly on the next run |
@@ -290,44 +291,83 @@ Run /review first.
 
 ## Act 4 — Data science workflow (3 min) ✂️ cut if short on time
 
-**What this shows:** Claude Code is not a tool for software engineers only. The same governance model — same CLAUDE.md, same workflow discipline — applies to the 40 data scientists on the fraud detection, credit scoring, and customer behavior teams. Directly bridges the suspicious transfer alerting feature from Act 3 to the DS team's world.
+**What this shows:** Claude Code working live in a data science context. The fraud team asks whether the $10,000 alert threshold is well-calibrated — Claude reads the notebook, recommends a threshold change, and updates `app/config.py` directly. The server reloads automatically. No manual restart. Same tool, same CLAUDE.md governance, DS environment.
 
-**When to run:** After Act 3. No pre-setup required — this is a narrated walkthrough, not a live Jupyter build. Takes 3 minutes; can be shortened to 90 seconds with narration only.
+**When to run:** After Act 3. Requires `--reload` on the server (set in pre-setup above). Takes 3 minutes.
 
 ### Transition narration
 
 > "The suspicious transfer alerting feature we just built — threshold-based anomaly detection on ACH transfers — is a simplified version of exactly what your fraud detection data scientists build every day. Let me show you what Claude Code looks like in their environment."
 
-### Step 1 — Show the DS scenario (narrated, no live coding required)
+### Step 1 — Open the notebook
 
-Narrate the following scenario while optionally showing a pre-existing Jupyter notebook (or just speaking to the slides):
+In Terminal 2, open the pre-built fraud analysis notebook:
 
-**Scenario:** The fraud team asks: "Is our $10,000 alert threshold calibrated correctly against actual transfer patterns? Should it be higher or lower?"
+```bash
+jupyter notebook notebooks/fraud_threshold_analysis.ipynb
+```
 
-In a typical DS workflow without Claude Code:
-- Pull historical transfer data manually (hours of wrangling)
-- Write EDA code from scratch
-- Build a distribution analysis notebook
-- Manually convert findings to a pipeline function
-- Submit a PR with no spec, no review gate, no compliance check
+Switch to the browser tab that opens (Jupyter). Show the notebook briefly — it has 5 cells with pre-executed outputs:
+- A distribution histogram of 2,000 synthetic ACH transfers
+- A flag rate vs. threshold curve
+- A recommendation cell
 
-**With Claude Code in Jupyter:**
-
-> "The data scientist opens Claude Code in their notebook environment and types: 'analyze the distribution of historical ACH transfer amounts and recommend whether our $10,000 suspicious transfer threshold is well-calibrated.' Claude reads the data, runs the analysis, produces a visualization, and — critically — flags that the routing number column should not appear in the output. That flag comes from CLAUDE.md — the same compliance policy that governed the payments service."
+Point to the chart and the current flag rate: **16.6% of transfers are being flagged** at the $10,000 threshold.
 
 **Narration:**
-> "Same tool. Same governance. The data scientist didn't configure anything differently. CLAUDE.md traveled with the operating model. The fraud team gets the EDA done in minutes instead of hours, the compliance rule was enforced automatically, and the output is ready to promote to a production pipeline."
+> "The fraud team built this analysis notebook. It reads the threshold directly from `app/config.py` — same value the alerting service uses. Right now, 16.6% of all transfers trigger a suspicious transfer alert. The fraud operations team is drowning in reviews. They want to bring that closer to 5%."
 
-### Step 2 — The pipeline bridge (30 seconds)
+### Step 2 — Ask Claude Code for the recommendation
 
-> "When the analysis is complete, the DS asks Claude: 'convert this notebook into a production-ready pipeline function.' Claude generates the pipeline code. The DS submits it as a PR — through the same GitHub Actions CI the SE team uses, the same PR template with the security checklist, the same branch protection that requires a reviewer. One operating model. Three teams."
+Switch back to the Claude Code terminal. Type:
 
-### Step 3 — The 1–2 days statistic
+```
+Look at notebooks/fraud_threshold_analysis.ipynb. The flag rate is 16.6% — the fraud team wants to bring it closer to 5%. What threshold achieves that and what's the tradeoff?
+```
 
-Point to the stat from the Anthropic customer (Intercom VP of AI):
+Claude reads the notebook, analyzes the flag rate curve, and recommends raising the threshold to approximately **$25,000** — which drops the flag rate to ~5% while still catching the top-percentile outliers.
 
 **Narration:**
-> "'This process saves 1–2 days of routine work per model.' At 40 data scientists, even recovering one day per week per person is 40 DS-days per week — 2,000 days per year — available for new model development instead of pipeline boilerplate. That's faster fraud detection. Better credit scoring models. More accurate customer behavior analysis. Not because the data scientists are more skilled — because the operating model removed the friction that was wasting their time."
+> "Claude read the notebook, understood the flag rate distribution, and identified the threshold that achieves the fraud team's target. It also flagged the tradeoff: raising the threshold means transfers between $10k and $25k are no longer automatically flagged — they'd need a different detection signal. That's the kind of analysis that typically takes a data scientist half a day."
+
+### Step 3 — Apply the change live
+
+Approve the recommendation. Claude updates `app/config.py`:
+
+```python
+SUSPICIOUS_TRANSFER_THRESHOLD: float = 25_000.00
+```
+
+Because the server is running with `--reload`, it picks up the change automatically — no restart needed.
+
+**Narration:**
+> "One instruction. `config.py` updated. The server reloaded — watch the terminal. The alerting service is now live at the new threshold."
+
+### Step 4 — Confirm in the browser
+
+Switch to the browser (the payments app). Submit two transfers:
+- Amount: `15000` — previously would trigger an alert; now it should **not**
+- Amount: `30000` — above the new threshold; should trigger a **WARNING** alert
+
+**Narration:**
+> "The $15,000 transfer no longer triggers an alert — it's below the new threshold. The $30,000 one does. The fraud team's flag rate just dropped from 16.6% to ~5%, live, from a single instruction in Claude Code."
+
+### Step 5 — Commit the threshold change
+
+In Terminal 2:
+
+```bash
+git add app/config.py
+git commit -m "raise suspicious transfer threshold to 25000 per fraud team calibration"
+```
+
+**Narration:**
+> "Same tool. Same governance. The data scientist didn't configure anything differently — CLAUDE.md traveled with the operating model. The analysis, the recommendation, the config update, and the commit all happened in one session. In a real DS environment, that's a half-day of work compressed into 3 minutes."
+
+### Step 6 — The 1–2 days statistic
+
+**Narration:**
+> "'This process saves 1–2 days of routine work per model.' At 40 data scientists, even recovering one day per week is 40 DS-days per week — 2,000 days per year — available for new model development instead of pipeline boilerplate. That's faster fraud detection, better credit scoring, more accurate customer behavior analysis. Not because the data scientists are more skilled — because the operating model removed the friction wasting their time."
 
 ---
 
@@ -410,7 +450,7 @@ Claude stops after creating the files — it does not commit. You run these comm
 
 ```bash
 git checkout -b devsecops-hardening
-git add .github/ .gitignore requirements.txt
+git add .github/ .gitignore requirements.txt app/config.py
 git commit -m "add CI pipeline, PR template, and security hardening"
 git push -u origin devsecops-hardening
 gh pr create \
@@ -610,7 +650,7 @@ Open the PR URL in the browser. CI runs automatically. Merging is blocked until 
 
 | Problem | Fix |
 |---|---|
-| Alerts not appearing | You have `--reload` running — `Ctrl+C`, run `bash scripts/demo-reset.sh`, restart without `--reload` |
+| Alerts not appearing | Check server is running with `--reload`; if you just changed config.py, wait 2 seconds for the reload to complete |
 | Tests fail after build | Show it as a feature: "Claude caught a regression before it shipped — that's the hook working" |
 | Claude expands scope | Point to CLAUDE.md: "The compliance policy prevents silent scope creep — Claude flags it instead of doing it" |
 | GitHub auth fails | Skip `gh pr create`, show `git diff --stat` and commit message — traceability story lands the same |
