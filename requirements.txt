@@ -1,6 +1,10 @@
 fastapi==0.136.1
 uvicorn[standard]==0.46.0
-Jinja2==3.1.5
-python-multipart==0.0.26
+Jinja2==3.1.6
+python-multipart==0.0.27
 pytest==9.0.3
 httpx==0.28.1
+jupyter==1.1.1
+numpy==2.4.4
+pandas==3.0.2
+matplotlib==3.10.9
