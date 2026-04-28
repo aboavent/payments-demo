@@ -32,6 +32,8 @@ async def submit_transfer(
         raise HTTPException(status_code=422, detail="Routing number must be exactly 9 digits.")
     if not account_number.strip():
         raise HTTPException(status_code=422, detail="Account number is required.")
+    if amount <= 0:
+        raise HTTPException(status_code=422, detail="Amount must be greater than zero.")
 
     ach.submit_transfer(
         originator=originator,

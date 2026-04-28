@@ -1,6 +1,6 @@
 from app.models import Transfer
 from app import repository
-from app.services import audit
+from app.services import audit, alerts
 
 
 def submit_transfer(
@@ -26,6 +26,8 @@ def submit_transfer(
         detail=f"ACH transfer of ${amount:,.2f} from '{originator}' to '{beneficiary}' submitted.",
         transfer_id=transfer.id,
     )
+
+    alerts.check_suspicious_transfer(transfer)
 
     return transfer
 
