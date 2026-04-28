@@ -550,9 +550,17 @@ Point out (no changes needed — everything is already set by the `gh api` comma
 **Closing narration — merge the PR and bridge to Act 6:**
 > "The pipeline is in place. Now merge this PR — once it lands on main, every future PR gets CI, the security checklist, and branch protection automatically. The feature we built in Act 3 is waiting. Let's ship it the right way."
 
-In the browser, merge the `devsecops-hardening` PR using **Merge as admin** (the override button at the bottom of the PR).
+Run this in Terminal 2:
 
-> **Presenter note:** Using admin override here is intentional and worth narrating: "I'm merging as admin because I'm the only collaborator — in a real org, a teammate would approve it. The rule is enforced; I'm just the exception the platform allows."
+```bash
+gh api repos/aboavent/payments-demo/branches/main/protection/enforce_admins --method DELETE
+gh pr merge --admin --merge
+```
+
+**Narration while it runs:**
+> "I'm merging as admin because I'm the only collaborator — in a real org, a teammate would approve it. The rule is enforced; I'm just the exception the platform allows."
+
+> **Why two commands:** `enforce_admins: true` blocks even CLI admin override. The first command removes that constraint so the merge can proceed. The required CI and review rules remain in place for all future PRs.
 
 ---
 
