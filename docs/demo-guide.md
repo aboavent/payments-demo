@@ -136,14 +136,14 @@ Still in Plan Mode — nothing can change. Run this in Terminal 2:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/transfers \
-  -d "originator=Hacker&beneficiary=Evil Corp&amount=999999&routing_number=abc&account_number=" \
+  -d "originator=Hacker&beneficiary=Evil Corp&amount=999999&routing_number=BADROUTING&account_number=123456789" \
   -H "Content-Type: application/x-www-form-urlencoded"
 ```
 
-Returns `303` — the transfer was accepted. Switch to the browser and refresh: the malformed transfer (routing `abc`, empty account, `$999,999`) is now in the transfers table.
+Returns `303` — the transfer was accepted. Switch to the browser and refresh: the malformed transfer (routing `BADROUTING`, amount `$999,999`) is now in the transfers table.
 
 **Narration:**
-> "The HTML form would have blocked this. But a direct API call bypassed every constraint. That transfer just hit the in-memory store with a malformed routing number and an empty account number. In production, that's your database."
+> "The HTML form would have blocked this. But a direct API call bypassed every constraint. That transfer just hit the in-memory store with a malformed routing number and a $999,999 amount. In production, that's your database."
 
 ### Exit Plan Mode and fix it
 
@@ -164,7 +164,7 @@ Re-run the same curl in Terminal 2:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/transfers \
-  -d "originator=Hacker&beneficiary=Evil Corp&amount=999999&routing_number=abc&account_number=" \
+  -d "originator=Hacker&beneficiary=Evil Corp&amount=999999&routing_number=BADROUTING&account_number=123456789" \
   -H "Content-Type: application/x-www-form-urlencoded"
 ```
 
