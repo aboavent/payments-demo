@@ -130,6 +130,21 @@ Claude identifies that `routing_number` and `account_number` are validated only 
 **Narration:**
 > "It found a real gap. Account numbers and routing numbers are regulated fields — they're explicitly called out in CLAUDE.md. A penetration tester would catch this. Claude caught it in seconds, in read-only mode, without touching a line of code."
 
+### Demonstrate the exploit (30 seconds) ← makes it real
+
+Still in Plan Mode — nothing can change. Run this in Terminal 2:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/transfers \
+  -d "originator=Hacker&beneficiary=Evil Corp&amount=999999&routing_number=abc&account_number=" \
+  -H "Content-Type: application/x-www-form-urlencoded"
+```
+
+Returns `303` — the transfer was accepted. Switch to the browser and refresh: the malformed transfer (routing `abc`, empty account, `$999,999`) is now in the transfers table.
+
+**Narration:**
+> "The HTML form would have blocked this. But a direct API call bypassed every constraint. That transfer just hit the in-memory store with a malformed routing number and an empty account number. In production, that's your database."
+
 ### Exit Plan Mode and fix it
 
 Press **Shift+Tab** again to exit Plan Mode. Then:
@@ -138,10 +153,25 @@ Press **Shift+Tab** again to exit Plan Mode. Then:
 fix it — add server-side validation for routing_number and account_number in routes.py
 ```
 
-Claude adds a 9-digit routing number check and non-empty account number check at the route boundary. The **PostToolUse hook fires pytest automatically** — visible in the terminal.
+Claude adds a 9-digit routing number check, non-empty account number check, and positive amount check at the route boundary. The **PostToolUse hook fires pytest automatically** — visible in the terminal.
 
 **Narration:**
-> "It touched exactly one file. It didn't reformat adjacent code, didn't add abstractions, didn't expand scope. Surgical. And notice the terminal — tests ran automatically without anyone asking. That's a permanent project hook, not a demo configuration."
+> "It touched exactly one file. No reformatting, no abstractions, no scope creep. Surgical. And notice the terminal — tests ran automatically without anyone asking. That's a permanent project hook, not a demo configuration."
+
+### Confirm the fix (15 seconds)
+
+Re-run the same curl in Terminal 2:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/transfers \
+  -d "originator=Hacker&beneficiary=Evil Corp&amount=999999&routing_number=abc&account_number=" \
+  -H "Content-Type: application/x-www-form-urlencoded"
+```
+
+Now returns `422`. The exploit is closed.
+
+**Narration:**
+> "Same request. Now rejected at the server boundary. The fix took one instruction and touched one file."
 
 ### Subagents — show the list (30 seconds)
 
