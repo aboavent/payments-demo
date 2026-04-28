@@ -592,7 +592,13 @@ Claude moves the import. The PostToolUse hook fires pytest — 13 tests pass.
 
 ### Step 2 — Commit the feature through the pipeline
 
-Now ship everything from Act 3 through the process Act 4 just established. Run in Terminal 2:
+Now ship everything from Acts 2–3 through the pipeline Act 5 just established. This includes:
+- `app/routes.py` — server-side validation added in Act 2 (routing number regex, non-empty account, positive amount)
+- `app/services/alerts.py` — `check_suspicious_transfer()` implemented with threshold logic
+- `app/services/ach.py` — import consolidated to module style (`alerts.check_suspicious_transfer`) after the `/refactor` step
+- `tests/test_alerts.py` — 3 tests covering above-threshold alert, below-threshold silence, and sensitive field exclusion
+
+Run in Terminal 2:
 
 ```bash
 git checkout -b feature/suspicious-transfer-alerting
@@ -603,12 +609,14 @@ gh pr create \
   --title "Implement suspicious transfer alerting and route validation" \
   --body "$(cat <<'EOF'
 ## Summary
-Implement threshold-based suspicious transfer alerting and server-side input validation.
+- Add server-side validation for routing number (9-digit regex), account number (non-empty), and amount (positive) at the route boundary
+- Implement threshold-based suspicious transfer alerting: WARNING alert fires for transfers >= $10,000
+- Wire alerting into ACH submission flow after audit event; consolidate import to module style
 
 ## Test plan
-- [x] Tests pass locally: `pytest tests/ -q`
-- [x] Alerts panel shows WARNING for transfers >= $10,000
-- [x] No account numbers or routing numbers in logs
+- [x] Tests pass locally: `pytest tests/ -q` → 13 passed
+- [x] Alerts panel shows WARNING for transfers >= $10,000; no alert below threshold
+- [x] No account numbers or routing numbers in logs or alert messages
 
 ## Security checklist
 - [x] No sensitive fields exposed in error messages or logs
