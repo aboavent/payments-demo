@@ -26,6 +26,9 @@ cd "$(dirname "$0")/.."
 echo "==> Stopping uvicorn (if running)..."
 kill $(lsof -ti :8000) 2>/dev/null && echo "    stopped" || echo "    not running"
 
+echo "==> Switching to main branch (force, discards any uncommitted changes)..."
+git checkout -f main
+
 echo "==> Restoring app/services/ach.py..."
 cat > app/services/ach.py << 'EOF'
 from app.models import Transfer
@@ -90,9 +93,6 @@ EOF
 
 echo "==> Removing test_alerts.py (belongs to the feature, not the baseline)..."
 rm -f tests/test_alerts.py
-
-echo "==> Switching to main branch (force, discards any uncommitted changes)..."
-git checkout -f main
 
 echo "==> Restoring app/routes.py (remove server-side validation — Claude adds this live in Act 2)..."
 cat > app/routes.py << 'EOF'
